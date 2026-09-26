@@ -1,5 +1,7 @@
 # Syllify
 
+**→ [akashhalgekar.github.io/syllify](https://akashhalgekar.github.io/syllify/)**
+
 Drop in every syllabus you were handed. Get every deadline, traced to the line it
 came from, and the whole term on your calendar.
 
@@ -16,7 +18,7 @@ Built from an ISE 588 concept (USC Viterbi) into a working tool. MIT licensed.
 Three ways, none of which need a build step.
 
 ```bash
-git clone https://github.com/YOURNAME/syllify.git
+git clone https://github.com/akashhalgekar/syllify.git
 cd syllify
 node serve.mjs            # http://localhost:8080
 ```
@@ -24,9 +26,10 @@ node serve.mjs            # http://localhost:8080
 Or **double-click `index.html`** — everything works except that browsers restrict web
 workers on `file://`, which makes PDF reading slower.
 
-Or **deploy it**: drag the whole folder onto [app.netlify.com/drop](https://app.netlify.com/drop),
-or push it to GitHub Pages or Cloudflare Pages. It is static files; there is nothing to
-configure. Drag the folder and not just `index.html` — `vendor/` has to come with it.
+Or **deploy your own**: it is static files, so GitHub Pages (Settings → Pages → deploy
+from `main`, `/root`), Netlify drop, or Cloudflare Pages all work with nothing to
+configure. Deploy the whole folder and not just `index.html` — `vendor/` has to come
+with it, or PDF reading and the fonts break.
 
 ---
 
