@@ -1,0 +1,18 @@
+6.830 Database Systems
+Massachusetts Institute of Technology | Fall 2010
+LEC # | TOPICS | KEY DATES
+1 | Introduction (CC) |
+2 | The relational model (MS) | Problem set 1 out
+4 | Introduction to database internals (CC) | Problem set 1 due, Lab 1 out
+6 | Indexing and access methods (CC) | Problem set 2 out, Project teams due
+7 | Buffer pool design and memory management (CC) | Lab 1 due, Lab 2 out
+10 | Transactions and locking (MS) | Problem set 2 due
+11 | Optimistic concurrency control (MS) | Project proposal due, Lab 2 due
+| Exam 1 |
+12 | Recovery (MS) | Lab 3 out
+14 | Degrees of consistency (MS) | Problem set 3 out
+15 | C-store, Guest lecture: Sam Madden, MIT CSAIL | Lab 3 due
+20 | ORM, DryadLINQ (CC) | Lab 4 due (6.814)
+21 | Streaming databases (MS) | Problem set 3 due, Lab 5 out (6.814)
+| Exam 2 |
+23 | Final project presentations | Final project due (6.830), Lab 5 due (6.814)

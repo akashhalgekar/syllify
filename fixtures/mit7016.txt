@@ -1,0 +1,29 @@
+7.016 Introductory Biology
+Massachusetts Institute of Technology | Fall 2018
+Calendar
+LEC # | TOPICS | KEY DATES
+1 | Welcome; Introduction and course organization | 
+2 | Chemical bonding and molecular interactions; Lipids and membranes | 
+3 | Structures of amino acids, peptides and proteins | 
+4 | Enzymes and metabolism | 
+5 | Carbohydrates and glycoproteins | Problem set 1 due
+6 | Nucleic acids | 
+7 | Replication | 
+8 | Transcription | 
+9 | Chromatin remodeling and splicing | 
+10 | Translation | Problem set 2 due
+11 | Cells, the simplest functional units | 
+Exam 1 (Covering Lectures 1-10) | | 
+12 | Genetics 1-Cell division and segregating genetic material | 
+13 | Genetics 2-Rules of inheritance | 
+14 | Genetics 3-Linkage, crossing over | Problem set 3 due
+15 | Genetics 4-The power of model organisms in biological discovery | 
+16 | Recombinant DNA, cloning, and editing | 
+17 | Genomes and DNA sequencing | 
+18 | SNPs and human genetics | Problem set 4 due
+Exam 2 (Covering Lectures 11-17) | | 
+19 | Cell trafficking and protein localization | 
+25 | Cancer 1 | Problem set 5 due
+31 | Immunology 2-Memory, T cells, and autoimmunity | News brief proposal due
+34 | Viruses and anti-viral resistance | Problem set due
+Final Exam (Covering Lectures 1-36) | |

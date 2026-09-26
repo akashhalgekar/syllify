@@ -1,0 +1,14 @@
+CSci 4554 Computer Networks
+University of Minnesota Morris | Spring 2008
+Assignments
+Problem set 1 Due Friday, February 1
+Problem set 2 Due Friday, February 8
+Problem set 3 Due Friday, February 15
+Problem set 4 Due Friday, February 22
+Problem set 5 Due Monday, March 3
+Problem set 6 Due Monday, March 10
+Problem set 7 Due Friday, March 28
+Problem set 8 Due Friday, April 4
+Problem set 9 Due Friday, April 11
+Problem set 10 Due Thursday, April 24
+Problem set 11 Due Friday, May 9

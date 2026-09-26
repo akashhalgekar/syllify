@@ -1,0 +1,14 @@
+CSci 1302 Introduction to Computer Science
+University of Minnesota Morris | Fall 2004
+Assignments
+Problem set 1 Due Wedn., Sept. 15th.
+Problem set 2 Due Wedn., Sept. 22nd.
+Problem set 3 Due Wedn., Sept. 29th.
+Problem set 4 Due Wedn., Oct. 6th.
+Problem set 5 Was due Wedn., Oct. 13th, now due Friday, Oct. 15th.
+Problem set 6. Due Monday, Oct. 25th.
+Problem set 7. Due Friday, Nov. 5th.
+Problem set 8. Due Friday, Nov. 12th.
+Problem set 9. Due Wedn., Nov. 24th.
+Problem set 10. Due Fri., Dec. 3rd.
+Problem set 11. Due Wedn., Dec. 15th.
