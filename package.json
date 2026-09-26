@@ -1,0 +1,11 @@
+{
+  "name": "syllify",
+  "version": "1.0.0",
+  "description": "Turn course syllabi into a calendar, with every date traced to the line it came from.",
+  "type": "module",
+  "main": "parser.mjs",
+  "bin": { "syllify-mcp": "./mcp-server.mjs" },
+  "scripts": { "test": "node test.mjs" },
+  "license": "MIT",
+  "files": ["index.html", "parser.mjs", "mcp-server.mjs", "worker.js", "test.mjs", "AI-CONTRACT.md", "README.md"]
+}

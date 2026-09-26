@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="How Syllify went from an ISE 588 course concept to a working syllabus-to-calendar tool: what user testing changed, what the hard part turned out to be, and what went wrong.">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Syllify">
+<meta property="og:title" content="How Syllify got built">
+<meta property="og:description" content="Users refused the two features every product adds. Four of eleven syllabi contain no dates at all. 127 deadlines hand-scored, zero invented.">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://syllify.netlify.app/story.html">
+<meta property="og:url" content="https://syllify.netlify.app/story.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23171717'/%3E%3Cpath d='M16 8l7 12H9z' fill='%23990000'/%3E%3C/svg%3E">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>How Syllify Was Built</title>
+</head>
+<body>
+
+<style>
+  @font-face{font-family:"Geist";src:url("vendor/Geist.woff2")format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+  @font-face{font-family:"Geist Mono";src:url("vendor/GeistMono.woff2")format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+</style>
+<style>
+  :root{
+    /* neutrals carry a trace of the cardinal so the page reads as one family */
+    --paper:#faf9f9; --panel:#ffffff;
+    --ink:#161314; --ink-2:#514b4d; --ink-3:#8d8688; --ink-4:#b5aeb0;
+    --line:#e6e2e3; --line-2:#d6d0d2;
+    --usc:#990000;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0b0a0a; --panel:#141212;
+      --ink:#f0ecec; --ink-2:#a9a2a4; --ink-3:#7d7678; --ink-4:#565051;
+      --line:#241f20; --line-2:#332c2e;
+      --usc:#e4564d;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0b0a0a; --panel:#141212;
+    --ink:#f0ecec; --ink-2:#a9a2a4; --ink-3:#7d7678; --ink-4:#565051;
+    --line:#241f20; --line-2:#332c2e;
+    --usc:#e4564d;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+    font-size:16px; line-height:1.62; letter-spacing:-.011em;
+    -webkit-font-smoothing:antialiased;
+    padding-inline:20px; padding-block:0 0;
+  }
+  .wrap{max-width:620px;margin:0 auto}
+  .mono{font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .lbl{
+    font-family:"Geist Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--ink-3);
+  }
+  p{margin:0 0 18px}
+  b{font-weight:500;color:var(--ink)}
+  a{color:inherit}
+
+  /* ── hero ── */
+  header{padding-block:64px 34px}
+  h1{
+    font-family:"Geist Mono",ui-monospace,monospace;
+    font-size:clamp(34px,8.4vw,54px); font-weight:500; line-height:1.0;
+    letter-spacing:-.05em; margin:14px 0 0; text-wrap:balance;
+  }
+  h1 .dim{color:var(--ink-4)}
+  .lede{font-size:18px;line-height:1.55;color:var(--ink-2);margin-top:20px;letter-spacing:-.015em}
+
+  .track{display:flex;gap:6px;margin-top:30px;flex-wrap:wrap}
+  .track span{
+    font-family:"Geist Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--ink-3);border:1px solid var(--line-2);
+    border-radius:3px;padding:4px 9px;white-space:nowrap;
+  }
+  .track span:last-child{color:var(--panel);background:var(--ink);border-color:var(--ink)}
+  :root[data-theme="dark"] .track span:last-child,
+  :root:not([data-theme="light"]) .track span:last-child{color:var(--paper)}
+
+  /* ── sections ── */
+  section{padding-block:34px;border-top:1px solid var(--line)}
+  h2{
+    font-size:23px;font-weight:400;line-height:1.24;letter-spacing:-.035em;
+    margin:8px 0 16px;text-wrap:balance;
+  }
+
+  .pull{
+    font-size:19px;line-height:1.5;letter-spacing:-.025em;color:var(--ink);
+    border-left:2px solid var(--usc);padding-left:18px;margin:4px 0 20px;
+  }
+
+  /* ── numbers ── */
+  .figs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:6px 0 4px}
+  .fig{background:var(--panel);padding:16px 14px}
+  .fig b{display:block;font-family:"Geist Mono",ui-monospace,monospace;font-size:26px;
+    font-weight:500;letter-spacing:-.035em;line-height:1.1;color:var(--ink)}
+  .fig span{display:block;font-family:"Geist Mono",ui-monospace,monospace;font-size:10px;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+  @media (max-width:430px){ .figs{grid-template-columns:1fr} }
+
+  /* ── evidence bar ── */
+  .bands{display:flex;height:34px;border-radius:3px;overflow:hidden;margin:6px 0 10px}
+  .bands i{display:grid;place-items:center;font-family:"Geist Mono",ui-monospace,monospace;
+    font-size:12px;font-weight:500;font-style:normal;color:#fff}
+  .b1{background:var(--ink);flex:26} .b2{background:var(--ink-3);flex:29} .b3{background:var(--usc);flex:39}
+  :root[data-theme="dark"] .b1,:root:not([data-theme="light"]) .b1{color:var(--paper)}
+  .key{display:flex;gap:16px;flex-wrap:wrap}
+  .key span{font-family:"Geist Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+  .key i{width:9px;height:9px;border-radius:2px;display:block}
+
+  /* ── the wrong list ── */
+  .wrong{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:16px}
+  .wrong li{padding-left:18px;border-left:2px solid var(--line-2)}
+  .wrong b{display:block;margin-bottom:3px}
+  .wrong p{margin:0;font-size:15px;color:var(--ink-2)}
+
+  /* ── cta ── */
+  .cta{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);
+    text-decoration:none;border-radius:4px;padding:0 20px;height:46px;font-size:15px;font-weight:500;
+    letter-spacing:-.01em}
+  .cta:hover{opacity:.87}
+  .cta .tri{font-size:.8em;color:var(--usc)}
+  :root[data-theme="dark"] .cta .tri,:root:not([data-theme="light"]) .cta .tri{color:#ff8b82}
+  .after{font-size:14px;color:var(--ink-3);margin-top:14px}
+
+  footer{padding-block:26px 56px;border-top:1px solid var(--line);margin-top:34px;
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  footer span{font-family:"Geist Mono",ui-monospace,monospace;font-size:10.5px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--ink-4)}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="lbl">ISE 588 · USC Viterbi · Akash Halgekar</div>
+    <h1>How Syllify<br>got <span class="dim">built</span></h1>
+    <p class="lede">A course concept that stayed a Figma file, taken apart and rebuilt
+      as something students can actually open.</p>
+    <div class="track">
+      <span>Concept</span><span>Prototype</span><span>User testing</span><span>Rebuilt as software</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="lbl">The problem</div>
+    <h2>Four syllabi describe four courses. None of them describes your semester.</h2>
+    <p>Course A's midterm is fine. Course B's project is fine. All four landing inside
+      the same seventy-two hours is not fine, and no document you own says so. You find
+      out in week eleven, during week eleven.</p>
+    <p>So the product stopped being a parser and started answering one question:</p>
+    <p class="pull">The week of October 14 is your heaviest: a midterm, two assignments
+      and three readings, across three courses.</p>
+  </section>
+
+  <section>
+    <div class="lbl">What testing changed</div>
+    <h2>Users refused the two features every product adds.</h2>
+    <p>Kano classification put <b>account creation</b> and <b>forced calendar sync</b>
+      in the same bucket: <b>Reverse Needs</b>. Not low priority. Actively unwanted.</p>
+    <p>Honouring that removed the login, then the server, then the backend entirely.
+      Syllify now runs start to finish inside the browser tab. The constraint users
+      imposed turned out to be the architecture.</p>
+  </section>
+
+  <section>
+    <div class="lbl">The hard part</div>
+    <h2>Four of eleven syllabi contain no dates at all.</h2>
+    <p>Not badly formatted dates. None. They are numbered by session or teaching week,
+      and the calendar lives in the professor's head. One of them is the syllabus for
+      the course this project was built in.</p>
+    <p>A tool that assumes a date column fails on a third of real syllabi. A tool that
+      guesses when it can't find one fails <b>silently</b>, which is worse.</p>
+  </section>
+
+  <section>
+    <div class="lbl">What it does now</div>
+    <div class="figs">
+      <div class="fig"><b>127</b><span>deadlines hand-scored</span></div>
+      <div class="fig"><b>95%</b><span>accounted for</span></div>
+      <div class="fig"><b>0</b><span>invented</span></div>
+    </div>
+    <p style="margin-top:18px">Nine real syllabi from seven institutions, every item
+      checked by hand against the source. Anything it can't date is listed as undated
+      rather than quietly dropped.</p>
+  </section>
+
+  <section>
+    <div class="lbl">The principle</div>
+    <h2>Every date says how much to trust it.</h2>
+    <div class="bands" role="img" aria-label="Of 94 dated deadlines: 26 read off the page, 29 inferred, 39 guessed">
+      <i class="b1">26</i><i class="b2">29</i><i class="b3">39</i>
+    </div>
+    <div class="key">
+      <span><i style="background:var(--ink)"></i> Read off the page</span>
+      <span><i style="background:var(--ink-3)"></i> Inferred</span>
+      <span><i style="background:var(--usc)"></i> Guessed</span>
+    </div>
+    <p style="margin-top:18px">Nearly half are only guesses, and the product says so
+      instead of hiding it. Every row links to the exact line it came from. An AI pass
+      runs on every upload, and anything it proposes is discarded unless it cites a
+      line that actually supports it.</p>
+  </section>
+
+  <section>
+    <div class="lbl">What I got wrong</div>
+    <ul class="wrong">
+      <li><b>We tested the mockup, not the mechanism.</b>
+        <p>Two rounds of user testing on a Figma prototype came back 100% positive.
+          The first time the real parser met real syllabi it found 39% of the deadlines.
+          Nobody has to do anything to say yes to a picture.</p></li>
+      <li><b>A review found 30 defects in one pass.</b>
+        <p>Six of them made the product state something untrue, which for a tool selling
+          honesty is the only category that really matters. They're listed in the full
+          report rather than quietly fixed.</p></li>
+    </ul>
+  </section>
+
+  <section style="padding-bottom:10px">
+    <a class="cta" href="https://syllify.netlify.app" target="_blank" rel="noopener">
+      Try it on your own syllabus <span class="tri">▲</span></a>
+    <p class="after">No account, nothing uploaded. It runs entirely in your browser —
+      offline, if you want.</p>
+  </section>
+
+  <footer>
+    <span>Built at USC Viterbi</span>
+    <span>Fall 2025 — 2026</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

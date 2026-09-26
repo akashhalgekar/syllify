@@ -1,0 +1,2713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Syllify — Know which weeks hurt</title>
+<meta name="description" content="Drop in every syllabus you were handed. Syllify finds every deadline, names the weeks that will hurt, and puts the whole term on your calendar. Runs entirely in your browser — no account, nothing uploaded.">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Syllify">
+<meta property="og:title" content="Syllify — Know which weeks hurt. In week one.">
+<meta property="og:description" content="Drop in every syllabus. Get every deadline traced to the line it came from, the weeks that will hurt, and the term on your calendar.">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://syllify.netlify.app/">
+<meta property="og:url" content="https://syllify.netlify.app/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23171717'/%3E%3Cpath d='M16 8l7 12H9z' fill='%23990000'/%3E%3C/svg%3E">
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    color-scheme:light;
+  }
+  html,body{margin:0}
+  body{font-size:14px}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+  /* Static copy below is for crawlers and no-JS visitors; the app replaces it on load. */
+  .seo-static{max-width:720px;margin:0 auto;padding:40px 16px 64px}
+  .seo-static h1{font-size:34px;line-height:1.1;letter-spacing:-.04em;margin:0 0 16px;font-weight:500}
+  .seo-static h2{font-size:16px;margin:28px 0 8px;font-weight:600}
+  .seo-static p,.seo-static li{font-size:15px;line-height:1.6;color:#444}
+</style>
+</head>
+<body>
+<title>Syllify</title>
+<style>
+  @font-face{font-family:"Geist";src:url("vendor/Geist.woff2")format("woff2");
+    font-weight:100 900;font-style:normal;font-display:swap}
+  @font-face{font-family:"Geist Mono";src:url("vendor/GeistMono.woff2")format("woff2");
+    font-weight:100 900;font-style:normal;font-display:swap}
+  </style>
+<script src="vendor/pdf.min.js"></script>
+<style>
+  :root{
+    --bg:#fafafa; --panel:#ffffff; --sunk:#f2f2f2; --raise:#ebebeb;
+    --ink:#171717; --ink-2:#666666; --ink-3:#8f8f8f; --ink-4:#a8a8a8;
+    --line:#ebebeb; --line-2:#e0e0e0; --line-3:#d4d4d4;
+    --invert-bg:#171717; --invert-ink:#fafafa; --invert-line:#333333; --invert-dim:#8f8f8f;
+    --usc:#990000; --usc-ink:#ffffff;
+    --r:6px;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a0a0a; --panel:#111111; --sunk:#161616; --raise:#1f1f1f;
+      --ink:#ededed; --ink-2:#a1a1a1; --ink-3:#7d7d7d; --ink-4:#5c5c5c;
+      --line:#242424; --line-2:#2e2e2e; --line-3:#3a3a3a;
+      --invert-bg:#ededed; --invert-ink:#0a0a0a; --invert-line:#c9c9c9; --invert-dim:#5c5c5c;
+      --usc:#e4564d; --usc-ink:#1a0504;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0a0a; --panel:#111111; --sunk:#161616; --raise:#1f1f1f;
+    --ink:#ededed; --ink-2:#a1a1a1; --ink-3:#7d7d7d; --ink-4:#5c5c5c;
+    --line:#242424; --line-2:#2e2e2e; --line-3:#3a3a3a;
+    --invert-bg:#ededed; --invert-ink:#0a0a0a; --invert-line:#c9c9c9; --invert-dim:#5c5c5c;
+    --usc:#e4564d; --usc-ink:#1a0504;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+    font-size:14px;line-height:1.5;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.04em;text-wrap:balance}
+  p{margin:0}
+  button{font:inherit;font-family:inherit;color:inherit;cursor:pointer;letter-spacing:inherit}
+  input,select,textarea{font:inherit;font-family:inherit;color:inherit}
+  :focus-visible{outline:1.5px solid var(--ink);outline-offset:2px}
+  ::selection{background:var(--ink);color:var(--bg)}
+
+  .m{font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .lbl{
+    font-family:"Geist Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-3);
+  }
+  .tri{font-size:.85em;line-height:1;color:var(--usc)}
+  .btn:not(.sec) .tri,.term .tri{color:inherit}
+
+  /* chrome */
+  .bar{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-in{
+    max-width:1080px;margin:0 auto;padding:0 16px;height:52px;display:flex;align-items:center;gap:14px;
+  }
+  .wm{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;font-weight:500;letter-spacing:-.04em;font-size:15px}
+  .nav{display:flex;gap:2px;margin-left:8px;overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{
+    background:none;border:0;padding:6px 10px;border-radius:var(--r);font-size:13px;color:var(--ink-2);
+    white-space:nowrap;display:flex;align-items:center;gap:7px;
+  }
+  .nav button:hover{color:var(--ink);background:var(--raise)}
+  .nav button[aria-current="true"]{color:var(--ink);background:var(--raise)}
+  .nav .n{font-family:"Geist Mono",monospace;font-size:10.5px;color:var(--ink-4)}
+  .bar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+  .page{max-width:1080px;margin:0 auto;padding-left:16px;padding-right:16px;padding-block:28px 72px}
+  .narrow{max-width:720px}
+
+  /* buttons */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--invert-bg);color:var(--invert-ink);border:1px solid var(--invert-bg);
+    border-radius:var(--r);padding:0 14px;height:36px;font-size:13.5px;font-weight:500;
+  }
+  .btn:hover{opacity:.86}
+  .btn[disabled]{opacity:.35;cursor:not-allowed}
+  .btn.sec{background:var(--panel);color:var(--ink);border-color:var(--line-3)}
+  .btn.sec:hover{border-color:var(--ink);opacity:1}
+  .btn.sm{height:30px;font-size:12.5px;padding:0 10px}
+  .btn.lg{height:44px;font-size:14.5px;padding:0 20px}
+  .lnk{background:none;border:0;padding:0;color:var(--ink-2);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+  .lnk:hover{color:var(--ink)}
+
+  /* landing */
+  .hero{padding-block:52px 34px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(34px,6.4vw,58px);font-weight:400;letter-spacing:-.06em;line-height:1.02;max-width:15ch}
+  .hero .kick{margin-bottom:22px}
+  .hero p.lede{margin-top:20px;font-size:16.5px;color:var(--ink-2);max-width:56ch;letter-spacing:-.015em}
+  .hero .acts{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:36px;background:var(--line)}
+  .cell{background:var(--panel);padding:20px 18px 22px;display:flex;flex-direction:column;gap:8px}
+  .cell h3{font-size:14.5px;font-weight:500;letter-spacing:-.02em}
+  .cell p{font-size:13px;color:var(--ink-2)}
+  .cell .num{font-family:"Geist Mono",monospace;font-size:11px;color:var(--ink-4);letter-spacing:.06em}
+
+  .showcase{margin-top:34px;border:1px solid var(--line-3);border-radius:var(--r);background:var(--panel);padding:20px 22px}
+  .quoteline{font-size:19px;line-height:1.45;letter-spacing:-.03em;margin-top:10px;max-width:46ch}
+  .compare{margin-top:36px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .compare .row{display:grid;grid-template-columns:1fr 1fr;background:var(--line);gap:1px}
+  .compare .col{background:var(--panel);padding:18px}
+  .compare .col:first-child{background:var(--sunk)}
+  .compare h3{font-size:13px;font-weight:500;margin-bottom:10px}
+  .compare ul{margin:0;padding-left:16px;font-size:13px;color:var(--ink-2)}
+  .compare li{margin-bottom:6px}
+  .compare li::marker{color:var(--ink-4)}
+
+  /* dropzone */
+  .drop{
+    border:1px dashed var(--line-3);border-radius:var(--r);background:var(--panel);
+    padding:34px 20px;text-align:center;transition:border-color .12s,background .12s;
+  }
+  .drop.hot{border-color:var(--ink);background:var(--sunk)}
+  .drop .big{font-size:16px;font-weight:500;letter-spacing:-.025em}
+  .drop .sm{color:var(--ink-3);font-size:13px;margin-top:6px}
+  .drop .acts{display:flex;gap:9px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+
+  .files{list-style:none;margin:16px 0 0;padding:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .files li{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--panel);border-top:1px solid var(--line)}
+  .files li:first-child{border-top:0}
+  .files .ext{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:.06em;color:var(--ink-3);border:1px solid var(--line-2);border-radius:4px;padding:2px 5px}
+  .files .nm{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .files .sz{font-family:"Geist Mono",monospace;font-size:11.5px;color:var(--ink-4)}
+  .files .rm{background:none;border:0;color:var(--ink-4);padding:2px 5px;border-radius:4px;font-size:15px;line-height:1}
+  .files .rm:hover{color:var(--ink);background:var(--raise)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:14px}
+  .chip{
+    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:5px 10px;
+    font-family:"Geist Mono",monospace;font-size:11.5px;color:var(--ink-2);
+  }
+  button.chip:hover{border-color:var(--ink);color:var(--ink)}
+  .chip[disabled]{opacity:.4;cursor:default}
+
+  textarea.paste{
+    width:100%;min-height:210px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);
+    padding:13px;font-family:"Geist Mono",monospace;font-size:12.5px;line-height:1.65;resize:vertical;
+  }
+  textarea.paste:focus{border-color:var(--ink);outline:none}
+
+  /* terminal */
+  .term{
+    background:var(--invert-bg);color:var(--invert-ink);border-radius:var(--r);overflow:hidden;
+    border:1px solid var(--invert-bg);
+  }
+  .term .tb{display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--invert-line)}
+  .term .tb span{font-family:"Geist Mono",monospace;font-size:11px;color:var(--invert-dim);letter-spacing:.06em}
+  .term .tb i{width:8px;height:8px;border-radius:50%;background:var(--invert-line);display:block}
+  .term pre{
+    margin:0;padding:15px 16px;font-family:"Geist Mono",monospace;font-size:12px;line-height:1.75;
+    white-space:pre-wrap;word-break:break-word;min-height:220px;max-height:46vh;overflow:auto;
+  }
+  .term .dim{color:var(--invert-dim)}
+
+  /* review */
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+  .head h2{font-size:24px;letter-spacing:-.045em}
+  .head p{font-size:13.5px;color:var(--ink-2);margin-top:5px}
+  .stats{display:flex;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--line);flex-wrap:wrap;width:fit-content;max-width:100%}
+  .stat{background:var(--panel);padding:10px 16px;display:flex;flex-direction:column;gap:2px;min-width:92px}
+  .stat b{font-family:"Geist Mono",monospace;font-size:19px;font-weight:500;letter-spacing:-.02em}
+  .stat span{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+
+  .filters{display:flex;gap:2px;margin-bottom:12px;flex-wrap:wrap}
+  .filters button{
+    background:none;border:1px solid transparent;border-radius:var(--r);padding:5px 10px;
+    font-family:"Geist Mono",monospace;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);
+  }
+  .filters button:hover{color:var(--ink)}
+  .filters button[aria-pressed="true"]{color:var(--ink);border-color:var(--line-3);background:var(--panel)}
+
+  .tbl{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+  .tr{
+    display:grid;grid-template-columns:28px 78px 1fr 116px 70px 26px;align-items:center;gap:0 12px;
+    padding:0 13px;min-height:46px;border-top:1px solid var(--line);width:100%;text-align:left;
+    background:var(--panel);border-left:0;border-right:0;border-bottom:0;
+  }
+  .tr:first-child{border-top:0}
+  .thead{background:var(--sunk);min-height:34px}
+  .thead span{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+  button.tr:hover{background:var(--sunk)}
+  .tr[data-sel="true"]{background:var(--sunk)}
+  .tr[data-off="true"] .ttl,.tr[data-off="true"] .dt{opacity:.38;text-decoration:line-through}
+  .cb{
+    width:16px;height:16px;border:1px solid var(--line-3);border-radius:4px;background:var(--panel);
+    display:grid;place-items:center;padding:0;
+  }
+  .cb[aria-checked="true"]{background:var(--ink);border-color:var(--ink)}
+  .cb svg{width:10px;height:10px;stroke:var(--bg);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0;display:block}
+  .cb[aria-checked="true"] svg{opacity:1}
+  .kind{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+  .ttl{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .ttl b{font-weight:500}
+  .src-code{font-family:"Geist Mono",monospace;font-size:10.5px;color:var(--ink-4);margin-left:8px}
+  .dt{font-family:"Geist Mono",monospace;font-size:12px;color:var(--ink-2);white-space:nowrap}
+  .cf{
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:.03em;text-align:right;
+    border:1px solid transparent;border-radius:4px;padding:2px 6px;color:var(--ink-3);
+  }
+  .tr[data-lv="med"] .cf{color:var(--ink);border-color:var(--line-3)}
+  .tr[data-lv="low"] .cf{background:var(--usc);color:var(--usc-ink);border-color:var(--usc)}
+  .tr[data-edited="true"] .cf{color:var(--ink);border-color:var(--line-3)}
+  .tr[data-ai="true"] .cf{color:var(--ink);border-color:var(--ink);background:var(--panel)}
+  .ainote{border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:var(--r);
+    background:var(--panel);padding:11px 14px;margin-bottom:12px;font-size:13px;color:var(--ink-2)}
+  .ainote b{color:var(--ink)}
+  .src{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden}
+  .srow{display:grid;grid-template-columns:38px 1fr;gap:2px 10px;padding:4px 12px;border-top:1px solid var(--bg);
+    font-family:"Geist Mono",monospace;font-size:11.5px;line-height:1.6;color:var(--ink-3)}
+  .srow:first-child{border-top:0}
+  .sn{color:var(--ink-4);font-size:10.5px;text-align:right;padding-top:1px}
+  .st{word-break:break-word}
+  .srow.used{background:var(--sunk);color:var(--ink)}
+  .srow.used .st{font-weight:500}
+  .srow.nodate{background:var(--panel);color:var(--ink-2);box-shadow:inset 2px 0 0 var(--line-3)}
+  .srow.susp{box-shadow:inset 2px 0 0 var(--usc);background:var(--panel);color:var(--ink-2);cursor:pointer}
+  .srow.susp:hover{background:var(--sunk)}
+  .sout{grid-column:2;font-size:10.5px;color:var(--ink-2);letter-spacing:.02em}
+  .sout.dim{color:var(--ink-4)}
+  .sout b{color:var(--usc)}
+  .sadd{grid-column:2;display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 4px}
+  .sadd input{height:30px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);
+    padding:0 9px;font-size:12.5px;font-family:inherit}
+  .sadd input:first-child{flex:1 1 220px}
+  .mini{height:30px;padding:0 11px;border:1px solid var(--line-3);border-radius:var(--r);
+    background:var(--panel);color:var(--ink);font-size:12.5px;font-weight:500}
+  .mini:hover{border-color:var(--ink)}
+  .mini.solid{background:var(--invert-bg);color:var(--invert-ink);border-color:var(--invert-bg)}
+  .mini.solid:hover{opacity:.86}
+  .verdict{border:1px solid var(--line-3);border-radius:var(--r);background:var(--panel);padding:18px 20px}
+  .verdict p{font-size:15.5px;line-height:1.6;letter-spacing:-.015em;margin-bottom:10px}
+  .verdict p:last-of-type{margin-bottom:0}
+  .verdict.quiet p:first-child{font-size:17px;letter-spacing:-.025em}
+  .verdict.bare{border:0;background:none;padding:0}
+  .verdict.bare p:first-child{font-size:19px;line-height:1.45;letter-spacing:-.03em}
+  .flag{border:1px solid var(--line);border-left:3px solid var(--usc);border-radius:var(--r);
+    background:var(--panel);padding:12px 15px;margin-top:11px;font-size:13px;color:var(--ink-2)}
+  .flag b{color:var(--ink);font-size:13.5px}
+  .flag ul{margin:6px 0 0;padding-left:17px}
+  .flag li{margin-bottom:3px}
+  .checks{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+  .ck{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:13px 15px}
+  .ck[data-v="ok"]{border-color:var(--line-3);opacity:.6}
+  .ck[data-v="bad"],.ck[data-v="junk"]{border-left:3px solid var(--usc)}
+  .ck-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+  .ck-date{font-family:"Geist Mono",monospace;font-size:12px;color:var(--ink)}
+  .ck-title{font-size:15px;font-weight:500;margin:6px 0 9px;letter-spacing:-.015em}
+  .ck .quote{font-size:11.5px;line-height:1.6}
+  .ck-acts{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+  .misslist{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .misslist li{display:flex;align-items:center;gap:10px;font-size:13px;border-top:1px solid var(--line);padding-top:6px}
+  .misslist li span{flex:1}
+  .summary{margin-top:18px;background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);
+    padding:14px 16px;font-family:"Geist Mono",monospace;font-size:11.5px;line-height:1.65;
+    white-space:pre-wrap;color:var(--ink-2);max-height:40vh;overflow:auto}
+  .ainote ul{margin:7px 0 0;padding-left:17px}
+  .ainote li{margin-bottom:3px}
+  .caret{color:var(--ink-4);font-size:14px;line-height:1}
+  .inlinesrc{grid-column:2/-1;margin:7px 0 2px;padding:7px 10px;background:var(--sunk);
+    border-left:2px solid var(--usc);border-radius:0 4px 4px 0;font-family:"Geist Mono",monospace;
+    font-size:10.5px;line-height:1.6;color:var(--ink-2);word-break:break-word;white-space:pre-wrap}
+
+  .warnbar{border:1px solid var(--usc);border-left-width:3px;border-radius:var(--r);background:var(--panel);
+    padding:11px 14px;margin-bottom:12px;font-size:13px;color:var(--ink-2)}
+  .warnbar b{color:var(--ink)}
+  .orderbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid var(--line);
+    border-radius:var(--r);background:var(--panel);padding:9px 13px;margin-bottom:12px;font-size:12.5px;color:var(--ink-2)}
+  .orderbar b{color:var(--ink);font-family:"Geist Mono",monospace}
+  .orderbar>span{flex:1 1 280px}
+  .empty{padding:34px 16px;text-align:center;color:var(--ink-3);font-size:13.5px}
+
+  .dock{transition:opacity .16s,transform .16s;position:sticky;bottom:0;margin:22px -16px 0;padding:0 16px calc(10px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to top,var(--bg) 62%,transparent);padding-top:14px;z-index:15}
+  .dock-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:10px 14px}
+
+  .dock-in .btn{flex:none;white-space:nowrap}
+  .dock.tuck{opacity:0;transform:translateY(8px);pointer-events:none}
+  .dock-in>.lbl{min-width:0}
+
+  /* drawer */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:40}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--panel);z-index:41;
+    border-left:1px solid var(--line-2);display:flex;flex-direction:column;
+  }
+  .drawer header{padding:16px 18px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+  .drawer h3{font-size:15.5px;letter-spacing:-.03em}
+  .drawer .body{padding:18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:20px}
+  .x{background:none;border:0;color:var(--ink-3);font-size:19px;line-height:1;padding:2px 5px;border-radius:4px;margin-left:auto}
+  .x:hover{color:var(--ink);background:var(--raise)}
+  .blk{display:flex;flex-direction:column;gap:8px}
+  .quote{
+    background:var(--sunk);border:1px solid var(--line);border-left:2px solid var(--usc);border-radius:0 var(--r) var(--r) 0;
+    padding:11px 13px;font-family:"Geist Mono",monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;
+  }
+  .quote mark{background:var(--ink);color:var(--bg);padding:0 2px;border-radius:2px}
+  .kv{display:grid;grid-template-columns:104px 1fr;gap:7px 12px;font-size:13px}
+  .kv dt{font-family:"Geist Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:2px}
+  .kv dd{margin:0;color:var(--ink)}
+  .reasons{list-style:none;margin:0;padding:0;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;gap:7px}
+  .reasons li{display:flex;gap:9px}
+  .reasons .sgn{font-family:"Geist Mono",monospace;font-size:11px;color:var(--ink-3);flex:none;width:14px;padding-top:1px}
+  .fields{display:flex;flex-direction:column;gap:10px}
+  .fld label{display:block;margin-bottom:5px}
+  .fld input{
+    width:100%;height:34px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);
+    padding:0 10px;font-size:13.5px;
+  }
+  .fld input:focus{border-color:var(--ink);outline:none}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* gaps */
+  .gap{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:14px 15px;display:flex;flex-direction:column;gap:9px}
+  .gaplist{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .gap .q2{font-family:"Geist Mono",monospace;font-size:12px;color:var(--ink-2);line-height:1.65;word-break:break-word}
+  .gap .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .gap input[type="date"]{height:30px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);padding:0 8px;font-family:"Geist Mono",monospace;font-size:12px}
+
+  /* workload */
+  .weeks{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+  .wk .track{min-width:0;overflow:hidden}
+  .wk{display:grid;grid-template-columns:104px 1fr 34px;align-items:center;gap:12px;padding:8px 13px;border-top:1px solid var(--line)}
+  .wk:first-child{border-top:0}
+  .wk .wl{font-family:"Geist Mono",monospace;font-size:11px;color:var(--ink-3);letter-spacing:.03em}
+  .wk .track{height:14px;display:flex;gap:2px;align-items:stretch}
+  .wk .u{width:13px;border-radius:2px;background:var(--line-3)}
+  .wk .u[data-t="x"]{background:var(--ink)}
+  .wk .u[data-t="a"]{background:var(--ink-3)}
+  .wk .u[data-t="r"]{background:var(--line-3)}
+  .wk .c{font-family:"Geist Mono",monospace;font-size:11.5px;color:var(--ink-2);text-align:right}
+  .wk[data-heavy="true"]{background:var(--sunk)}
+  .wk[data-heavy="true"] .wl{color:var(--ink)}
+  .legend{display:flex;gap:16px;margin-top:11px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:6px;font-family:"Geist Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+  .legend i{width:11px;height:11px;border-radius:2px;display:block}
+
+  /* export */
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .opt{background:var(--panel);border:0;padding:17px 16px;text-align:left;display:flex;flex-direction:column;gap:4px}
+  .opt:hover{background:var(--sunk)}
+  .opt b{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+  .opt span{font-size:12.5px;color:var(--ink-2)}
+  .row-between{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:13px 16px;margin-top:14px}
+  select.sel{height:32px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);padding:0 8px;font-family:"Geist Mono",monospace;font-size:12px}
+
+  .sheet-wrap{position:fixed;inset:0;background:rgba(0,0,0,.34);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .sheet{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);width:100%;max-width:640px;max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+  .sheet header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+  .sheet pre{margin:0;flex:1;overflow:auto;padding:14px 16px;background:var(--sunk);font-family:"Geist Mono",monospace;font-size:11.5px;line-height:1.65;white-space:pre;color:var(--ink-2)}
+  .sheet footer{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sheet footer span{font-size:12px;color:var(--ink-3);flex:1 1 180px}
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));
+    background:var(--invert-bg);color:var(--invert-ink);border-radius:var(--r);padding:11px 16px;
+    font-size:13px;max-width:min(520px,calc(100% - 32px));z-index:60;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .foot span{font-family:"Geist Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-4)}
+
+  /* ── result document ── */
+  .res{max-width:1080px;margin:0 auto}
+  .zone{padding-block:34px;border-top:1px solid var(--line)}
+  .zone:first-of-type{padding-top:4px;border-top:0}
+  .zone-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .zone-h>div:first-child{flex:1 1 420px;min-width:0}
+  .zone-h h2{font-size:21px;letter-spacing:-.04em}
+  .sub{font-size:13px;color:var(--ink-2);margin-top:5px;max-width:64ch}
+  .prose{max-width:680px}
+  .vgrid{display:grid;gap:26px}
+  @media (min-width:920px){ .vgrid{grid-template-columns:minmax(0,1fr) 360px;gap:40px;align-items:start} }
+
+  /* lens toggle — two views of the same data, not two places */
+  .lens{display:inline-flex;background:var(--sunk);border:1px solid var(--line-2);border-radius:var(--r);padding:2px;gap:2px}
+  .lens button{
+    background:none;border:0;border-radius:4px;padding:4px 11px;font-size:12.5px;color:var(--ink-3);
+    white-space:nowrap;
+  }
+  .lens button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .lens button:hover{color:var(--ink)}
+
+  /* undated rows live in the schedule, not in their own screen */
+  .tr.gaprow{background:var(--panel);grid-template-columns:28px 78px 1fr 116px 70px 26px}
+  .tr.gaprow .ttl{color:var(--ink-2)}
+  .tr.gaprow .cf{color:var(--usc);border-color:var(--usc)}
+  .gapdate{
+    height:28px;width:112px;border:1px solid var(--line-3);border-radius:4px;background:var(--bg);
+    padding:0 6px;font-family:"Geist Mono",monospace;font-size:11.5px;color:var(--ink-2);
+  }
+  .gapdate:hover,.gapdate:focus{border-color:var(--ink);color:var(--ink);outline:none}
+  .dismiss{background:none;border:0;color:var(--ink-4);font-size:15px;line-height:1;padding:2px 5px;border-radius:4px}
+  .dismiss:hover{color:var(--ink);background:var(--raise)}
+
+  .jump{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .jump a{font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);text-decoration:none}
+  .jump a:hover{color:var(--ink)}
+
+  /* a file can be dropped on any screen, so any screen says so */
+  body.dragging::after{
+    content:"Drop to read";position:fixed;inset:10px;z-index:70;pointer-events:none;
+    border:1.5px dashed var(--ink);border-radius:10px;background:rgba(250,250,250,.72);
+    display:grid;place-items:center;font-family:"Geist Mono",monospace;font-size:12px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink);
+  }
+  :root[data-theme="dark"] body.dragging::after{background:rgba(10,10,10,.72)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body.dragging::after{background:rgba(10,10,10,.72)}}
+
+  /* motion: a view arrives, it does not blink */
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .enter{animation:rise .18s cubic-bezier(.2,.6,.3,1) both}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+  @media (max-width:640px){ .nav{display:none} }
+  .bar .right .btn{white-space:nowrap}
+  @media (max-width:760px){
+    .zone{padding-block:26px}
+    .zone-h{align-items:stretch}
+    .tr.gaprow{grid-template-columns:24px 1fr 62px}
+    /* On a phone, five tiles of metadata push every deadline off the screen.
+       Same numbers, one line, ~350px of the first screen given back. */
+    .stats{display:block;border:0;background:none;border-radius:0;width:100%;
+      font-family:"Geist Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink-3);
+      letter-spacing:.02em}
+    .stat{display:inline;background:none;padding:0;min-width:0}
+    .stat+.stat::before{content:" · ";color:var(--ink-4)}
+    .stat b{font-size:11.5px;font-weight:500;color:var(--ink)}
+    .stat span{font-size:11.5px;text-transform:lowercase;letter-spacing:.02em;color:var(--ink-3)}
+    .stat b::after{content:" "}
+    /* the course code and line number belong under the title, not inside it */
+    .tr .src-code{display:block;margin-left:0;margin-top:2px}
+    .gapdate{width:100%}
+    .grid3{grid-template-columns:1fr}
+    .compare .row{grid-template-columns:1fr}
+    .opts{grid-template-columns:1fr}
+    .tr{grid-template-columns:24px 1fr 62px;gap:9px;padding:9px 12px;align-items:start}
+    .thead{display:none}
+    .tr:not(.trlink) .kind{grid-column:2;order:1}
+    .tr:not(.trlink) .ttl{grid-column:2;order:2;white-space:normal}
+    .tr:not(.trlink) .dt{grid-column:2;order:3}
+    .tr.trlink{grid-template-columns:1fr auto!important;row-gap:2px;align-items:center}
+    .tr.trlink .kind{grid-row:1}
+    .tr.trlink .ttl{grid-row:2;grid-column:1;white-space:normal}
+    .tr.trlink .dt{grid-row:1;grid-column:2;text-align:right}
+    .tr.trlink .lbl{grid-row:2;grid-column:2;text-align:right}
+    .tr .cf{grid-column:3;grid-row:1/4;order:4;align-self:start}
+    .tr .caret{display:none}
+    .drawer{width:100%;top:auto;height:86%;border-left:0;border-top:1px solid var(--line-2);border-radius:var(--r) var(--r) 0 0}
+    .kv{grid-template-columns:88px 1fr}
+  }
+</style>
+
+<div class="bar">
+  <div class="bar-in">
+    <button class="wm" id="home"><span class="tri">▲</span> Syllify</button>
+    <nav class="nav" id="nav"></nav>
+    <div class="right" id="barRight"></div>
+  </div>
+</div>
+<div class="page" id="app"><div class="seo-static">
+    <h1>Four syllabi in, one honest read on your semester</h1>
+    <p><strong>Syllify</strong> reads every syllabus you were handed and pulls out the assignments, readings
+    and exams. Then it tells you what no single syllabus can: which weeks are heaviest, where three
+    deadlines land inside seventy-two hours, which days carry more than one thing, and how much of your
+    grade sits in the final three weeks. Every date links back to the line it came from, marked read,
+    inferred or guessed. Deliverables with no date get their own list instead of being dropped. Then the
+    whole term exports as an .ics or CSV calendar.</p>
+
+    <h2>How it works</h2>
+    <p>Upload one or more syllabi as PDF or text, or paste the schedule section. The text is extracted and
+    parsed in your browser. Review the deadlines, correct anything that looks wrong, then add them to Google
+    Calendar, Apple Calendar or Outlook.</p>
+
+    <h2>Privacy</h2>
+    <p>PDF text extraction and parsing run entirely in your browser. No syllabus is uploaded to a server,
+    and there is no account or sign-in.</p>
+
+    <h2>Limitations</h2>
+    <ul>
+      <li>This is a working prototype, not a finished product.</li>
+      <li>Text-based PDFs work. Scanned images have no text layer and will not parse.</li>
+      <li>Syllabi dated only by teaching week or lecture number need your term start date.</li>
+      <li>Confidence scores are a ranking, not a calibrated probability. Verify anything that matters.</li>
+    </ul>
+    <noscript><p><strong>This tool needs JavaScript enabled.</strong></p></noscript>
+  </div></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ───────────────────────────────────────────────────────────────
+   AI endpoint. Paste your Cloudflare Worker URL between the quotes
+   and the AI pass runs automatically on every upload, with no
+   account, no sign-in and no prompt for the student.
+   Leave it empty and Syllify falls back to the viewer's own Claude
+   (on claude.ai) or to copy-and-paste.
+   ─────────────────────────────────────────────────────────────── */
+const AI_ENDPOINT = "";
+
+/* ============================== samples ============================== */
+const SAMPLES = {
+"ISE 588": `ISE 588: Management of Rapid Product Development
+University of Southern California — Viterbi School of Engineering
+Fall 2025 | Tuesdays 6:30-9:20 PM | DMC 102
+Instructor: Dr. Alex M. Azmi
+Office hours: Tuesdays 5:00-6:00 PM, GER 240
+
+COURSE DESCRIPTION
+This course covers Agile, Scrum, Kanban, Lean Startup methods, MVP definition and
+testing, rapid prototyping, user feedback integration, KPIs and data-driven decisions,
+IP management, and ethics in rapid product development.
+
+REQUIRED TEXTS
+Ries, E. The Lean Startup
+Christensen, C. The Innovator's Dilemma
+Breyter, M. Agile Product and Project Management
+
+GRADING
+Team project 20%
+Weekly team presentations 15%
+Individual assignments 40%
+Final exam 25%
+
+COURSE SCHEDULE
+Week 1 | Aug 26 | Course overview. No reading.
+Week 2 | Sep 2 | Read Ries, The Lean Startup, Ch. 1-4. Assignment 1 (Lean Startup reflection) due Sep 2 by 11:59 PM.
+Week 3 | Sep 9 | Team formation and project charter due 9/9/2025 at 11:59 PM.
+Week 4 | Sep 16 | Read Christensen, The Innovator's Dilemma, Ch. 1-2.
+Week 5 | Sep 23 | Assignment 3: MVP definition memo due September 23, 11:59 PM.
+Week 6 | Sep 30 | Read Breyter, Ch. 3, pp. 48-77.
+Week 7 | Oct 7 | Read Ries Ch. 5-8 (Build-Measure-Learn).
+Week 8 | Oct 14 | Midterm concept review, in class.
+Week 9 | Read HBR case: IDEO Product Development.
+Week 10 | Oct 28 | Assignment 7: Kano analysis of user feedback due 10/28.
+Week 11 | Nov 4 | Read Christensen Ch. 5-7.
+Week 13 | Nov 18 | Read Breyter Ch. 8, Kanban in practice, pp. 180-206.
+Week 16 | Dec 9 | Final team presentation, in class 6:30 PM.
+Final written report due December 11, 2025 at 11:59 PM. Revisions accepted through 12/13.
+
+Every team delivers a weekly presentation at the start of class. Team leadership
+rotates among members each week.
+A 360 peer evaluation will determine the individual portion of the project grade.
+Late work is penalized 10% per day.`,
+
+"ISE 513": `ISE 513 — Supply Chain Analysis and Design
+Fall 2025. Thursdays 2:00-4:50 PM.
+Instructor: TBD
+
+Teams of four compete in a semester-long supply chain championship.
+
+MILESTONES
+Round 1: demand forecast submission, due 9/15 at 5:00 PM
+Round 2: contracts and inventory plan, due 10/6 at 5:00 PM
+Case memo on the bullwhip effect at a regional distributor, due week of Oct 20
+Final championship results deck — Nov 24, presented in class
+
+READINGS
+Chopra & Meindl, Ch. 7 Demand Forecasting — read before Sep 15
+Chopra & Meindl, Ch. 11 Managing Safety Inventory — read before Oct 6
+Chopra & Meindl, Ch. 10 Coordination in the Supply Chain (recommended)
+
+GRADING
+Championship rounds 45%
+Case memos 20%
+Final deck 20%
+Participation 15%
+
+Peer evaluation forms are collected at the end of the term.
+A reflection on your team's forecasting error is expected with the final deck.`,
+
+"WRIT 340": `WRIT 340 Advanced Writing for Engineers
+Spring 2026 | Mon/Wed 10:00-11:20 AM
+
+Instructor: Dr. R. Okonkwo
+
+Our work this term is built around four major pieces of writing plus weekly
+workshop participation.
+
+The diagnostic essay is due at the end of the second week of class.
+Project 1, the technical description, is due February 4 by midnight.
+We will workshop drafts of Project 1 in class on 1/28.
+Project 2, the proposal, is due on March 4. Bring two printed copies.
+Read Williams, Style: Lessons in Clarity and Grace, chapters 1-3 before Feb 11.
+Read the Challenger case study packet before the March 18 session.
+Project 3, the recommendation report, is due April 8 at 11:59 pm.
+The final portfolio, including revisions of all three projects, is due during
+finals week.
+Peer review memos are submitted the week after each draft workshop.
+Attendance at one writing center appointment is required at some point in the term.`
+};
+
+/* ============================== parser ============================== */
+const MON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11,
+  ene:0,abr:3,dic:11,                  // Spanish
+  fev:1,avr:3,mai:4,juin:5,juil:6,     // French
+  mrz:2,okt:9,dez:11,                  // German
+  ott:9,giu:5};                        // Italian
+// Non-English names are included only where they cannot collide with ordinary English words.
+// "out" (outubro), "set" (setembro), "ago" (agosto), "mag" (maggio) are deliberately excluded.
+const MONWORD="jan|feb|f\u00e9v|fev|mar|m\u00e4r|mrz|apr|abr|avr|may|mai|jun|juin|giu|jul|juil|aug|ao\u00fbt|sep|sept|oct|okt|ott|nov|dec|dez|dic|ene";
+const RE_MON=new RegExp("\\b("+MONWORD+")[a-z\u00e9\u00fc\u00e4]*\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:\\s*,?\\s*(20\\d{2}))?","i");
+// "4 March", "21st October 2025" — the day-first written form
+const RE_DMY=new RegExp("\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?("+MONWORD+")[a-z\u00e9\u00fc\u00e4]*\\.?,?(?:\\s*(20\\d{2}))?\\b","i");
+const RE_NUM=/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}|\d{2}))?\b/;
+const RE_ISO=/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/;
+const RE_DOT=/\b(\d{1,2})\.(\d{1,2})\.(20\d{2})\b/;
+const RE_WEEK=/\bweek\s*#?\s*(\d{1,2})\b/i;
+const RE_TIME=/\b(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)\b/i;
+const RE_COURSE=/\b([A-Za-z]{2,5})[ \-]?(\d{3,4}[A-Z]?)\b/g;
+const RE_COURSE_DOT=/\b(\d{1,2}\.\d{2,3}[A-Z]?)\b/;
+const RE_TERM=/\b(fall|autumn|spring|summer|winter)\s+(20\d{2})\b/i;
+const RE_TERM2=/\b(semester|term|trimester|quarter)\s*([1-5])\b[\s,]*(20\d{2})?/i;
+const RE_YEAR=/\b(20\d{2})\b/;
+const RESCHED=/\b(now due|rescheduled|moved to|extended to|postponed)\b/i;
+const RE_WKDAY=/\b(mon|tues?|wed(nes)?|thur?s?|fri)(day)?s?\b/i;
+
+const DUE=/\b(due|deadline|submit|submitted|turn in|hand in|deliverable|by midnight|no later than)\b/i;
+const EXAM=/\b(exam(?:s|ination|inations)?|midterms?|final\s+exam|quiz|quizzes|tests?|proctored|viva)\b/i;
+const READ=/\b(read|reading|readings|chapter|chapters|ch\.?\s*\d|pp\.?\s*\d|pages|textbook|article|case study|case packet|packet)\b/i;
+const WORK=/\b(assignment|homework|hw\s*\d|problem set|pset|project|memo|paper|essay|report|presentation|deck|lab|milestone|draft|proposal|portfolio|charter|reflection|submission|round \d|coursework|exercise|dissertation|thesis|worksheet|critique|annotated bibliography|response paper|peer (review|evaluation))s?\b/i;
+const NOISE=/^(course\s+(description|descriptions|polic\w+|objectives?|outcomes?|outline|information|info|materials|requirements|staff|website|number|title|overview|goals?)|instructor|office hours|grading|required texts?|description|prerequisite|policy|policies|schedule|syllabus|university|department|contact|email|phone|week \d+\s*\|?\s*$)/i;
+const NEG=/\bno (reading|readings|class|assignment|homework|meeting)\b/i;
+const CITE=/^[A-Z][A-Za-z'’-]+,\s+[A-Z]\.\s/;
+const CODEISH=/^(?!(week|wk|lec|lecture|session|ses|ch|chap|chapter|page|pp|fig|day|unit|module|topic|no|part|vol)\b)[a-z]{1,4}[-–—_ ]?\d{1,3}[a-z]?$/i;
+const GAPVERB=/\b(due|submit|submitted|required|expected|collected|complete|completed|turn in|hand in|attend|attendance|present|presented|presents?|deliver|delivers|delivered|determine)\b/i;
+const GAPVERB2=/\b(out|posted|released|assigned)\b/i;
+/* Status notes, not deliverables. These carry a work noun and a row date but
+   nothing is handed in: "Work on your final assignments", "ALL STUDENTS MUST SUBMIT…". */
+/* Table column headers. "DATE DUE" is not a deadline; "Projektbericht due" is. */
+/* What is left of a title once dates, weekdays and due-words are removed. An
+   unnamed deliverable needs something of its own here — otherwise a fragment
+   like "Due Monday, Oct. 25th." becomes a deadline called "Monday". */
+const FILLER=/\b(mon|tues?|wed(nes)?|thur?s?|fri|satur|sun)(day)?s?\b|\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b|\b(due|by|before|after|at|on|the|of|in|and|is|was|now|no|later|than|submit|submitted|deadline|turn|hand|week|wk)\b/gi;
+const core=t=>String(t||"").replace(FILLER," ").replace(/[^A-Za-z]+/g," ").trim();
+const HEADERISH=/^(dates?|due|due date|date due|deliverables?|assessments?|items?|tasks?|topics?|week|weight|links?|notes?|readings?)[\s|:]*(due)?[\s|:]*$/i;
+/* Sentences ABOUT an assessment, rather than an instance of one. Without this,
+   an exam-policy paragraph yields one candidate per sentence: "The Midterm will
+   cover material taught in the first half of the class", "You CANNOT be exempted
+   from the Midterm", "NO MAKE-UPS OF Midterm WILL BE GIVEN." */
+const POLICY=/\b(will\s+(be|cover|conduct|explain|provide|represent|have|also|subject|start|end)|would\s+be|cannot|can\s?not|may\s+not|must\s+not|should\s+not|do\s+not|does\s+not|are\s+not|is\s+not|no\s+make-?ups?|not\s+(allowed|permitted|feasible)|is\s+determined|are\s+determined|follows\s+the|please\s+(check|see|refer|note|ask)|consult\s+the|for\s+details|relative\s+to|be\s+exempted|open\s+book|academic\s+integrity|plagiaris|accommodat|OSAS|student\s+handbook|emergency|recording|unauthorized|discipline|university\s+policy|policies)/i;
+const NOTASK=/^(work\s+(on|independently|through)\b|continues?\s+from\b|all students\b|see\s+(above|below|syllabus)\b|tba\b|tbd\b|n\/a\b)/i;
+const ABBR=/\b(ch|chs|pp|p|dr|mr|mrs|ms|prof|vs|etc|no|ed|eds|vol|fig|sec|approx|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec|mon|tues|tue|wed|wedn|weds|thur|thurs|thu|fri|sat|sun|i\.e|e\.g|a\.m|p\.m|u\.s)\.\s/gi;
+const TRAIL=/[\s,;:.–—-]*\b(due|deadline|submitted|submit|read|is|are|was|will be|on|by|at|before|through|no later than|week of|of|and|for|to|midnight|noon|starting|beginning)\b[\s,;:.–—-]*$/i;
+
+function splitClauses(line){
+  const out=[]; let cursor=0;
+  line.split(/\s*\|\s*/).filter(s=>s.trim().length>2).forEach(part=>{
+    part.replace(ABBR,m=>m.replace(".","\u0001"))
+      .split(/(?:\.|;)\s+(?=[A-Z0-9"(])/)
+      .forEach(s=>{
+        const r=s.replace(/\u0001/g,".").trim();
+        if(r.length>5 || CODEISH.test(r)){
+          let at=line.indexOf(r.slice(0,18),cursor);
+          if(at<0) at=cursor;
+          out.push({t:r,at}); cursor=at+r.length;
+        }
+      });
+  });
+  return out.length?out:[{t:line.trim(),at:0}];
+}
+function stripDates(s){
+  return s
+    .replace(new RegExp("\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:of\\s+)?("+MONWORD+")[a-z\u00e9\u00fc\u00e4]*\\.?,?(?:\\s*20\\d{2})?","gi")," ")
+    .replace(new RegExp("\\b("+MONWORD+")[a-z\u00e9\u00fc\u00e4]*\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?(?:\\s*,?\\s*20\\d{2})?","gi")," ")
+    .replace(/\b\d{1,2}\/\d{1,2}(?:\/(?:20)?\d{2})?\b/g," ")
+    .replace(/\b20\d{2}-\d{1,2}-\d{1,2}\b/g," ")
+    .replace(/\bweek\s*#?\s*\d{1,2}\b/gi," ");
+}
+function tidy(t){
+  t=t.replace(/^\s*[•\-–—*·>|]+\s*/,"").replace(/^\d{1,2}[.)]\s*/,"")
+     .replace(/^(due|deadline)\s*:?\s*/i,"").replace(/\s{2,}/g," ").trim();
+  for(let i=0;i<6;i++){ const n=t.replace(TRAIL,"").trim(); if(!n||n.length<6||n===t) break; t=n; }
+  return t.replace(/\((?:\s*(?:due|by|on|at|submit|before|sunday|monday|tuesday|wednesday|thursday|friday|saturday|[,.;:—–-])\s*)*\)/gi," ")
+          .replace(/\s*[–—-]\s*[,;]/g,",").replace(/\s{2,}/g," ")
+          .replace(/[\s,;:.–—-]+$/,"").replace(/^[\s,;:.–—-]+/,"").trim();
+}
+
+const TERMSTART={fall:[7,25],spring:[0,12],summer:[4,20],winter:[0,5]};
+
+function monIdx(w){
+  const k=String(w).toLowerCase().replace(/[.\u00e9\u00e8\u00fb]/g,c=>({"\u00e9":"e","\u00e8":"e","\u00fb":"u",".":""}[c]||c));
+  if(MON[k]!==undefined) return MON[k];
+  const three=k.slice(0,3);
+  if(MON[three]!==undefined) return MON[three];
+  const four=k.slice(0,4);
+  return MON[four];
+}
+function toISO(y,m,d){ return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+
+function parse(rawLines, meta){
+  const text=rawLines.join("\n");
+  const head=rawLines.slice(0,16).join(" ");
+  let code=null, codeFound=false;
+  RE_COURSE.lastIndex=0;
+  for(const c of [...head.matchAll(RE_COURSE)]){
+    if(/^19\d{2}$/.test(c[2])) continue;
+    if(/^(fall|autumn|spring|summer|winter|semester|term|week|room|suite|unit)$/i.test(c[1])) continue;
+    code=c[1].toUpperCase()+" "+c[2]; codeFound=true; break;
+  }
+  if(!code){ const dm=head.match(RE_COURSE_DOT); if(dm){ code=dm[1]; codeFound=true; } }
+  if(!code) code=(meta.name||"Course").replace(/\.[a-z]+$/i,"").slice(0,14);
+
+  const tm=text.match(RE_TERM);
+  const tm2=tm?null:text.match(RE_TERM2);
+  const season = tm ? (tm[1].toLowerCase()==="autumn"?"fall":tm[1].toLowerCase()) : null;
+  const yrM=text.slice(0,600).match(RE_YEAR);
+  const year = tm ? +tm[2] : (tm2&&tm2[3] ? +tm2[3] : (yrM?+yrM[1]:new Date().getFullYear()));
+  let termStart=null, termSource=null;
+  if(season){ const ts=TERMSTART[season]; termStart=new Date(year,ts[0],ts[1]); termSource="season"; }
+  const im=text.match(/^\s*(?:instructor|professor|taught by)\s*:?\s*(.+)$/im)
+    || head.match(/\b((?:Prof|Dr|Professor)\.?\s+[A-Z][A-Za-z.'’-]+(?:\s+[A-Z][A-Za-z.'’-]+){0,1})/);
+  const instructor = im ? im[1].replace(/^[^|]*\|\s*/,"").replace(/\s*\|.*$/,"").trim().slice(0,60) : null;
+  const ctM=head.match(/\b(\d{1,2}):(\d{2})\s*[-–—]\s*\d{1,2}:\d{2}\s*(a\.?m\.?|p\.?m\.?)/i);
+  let classTime=null;
+  if(ctM){ let h=+ctM[1]; if(/p/i.test(ctM[3])&&h<12)h+=12; classTime=String(h).padStart(2,"0")+":"+ctM[2]; }
+  const dayM=head.match(RE_WKDAY);
+  const classDay = dayM ? ({mon:1,tue:2,tues:2,wed:3,wednes:3,thu:4,thur:4,thurs:4,fri:5}[dayM[1].toLowerCase()]||2) : null;
+
+  function yearFor(mIdx){
+    if(season==="fall") return mIdx>=6 ? year : year+1;
+    if(season==="spring") return mIdx<=6 ? year : year-1;
+    return year;
+  }
+  // A row pairing a teaching week with a real date beats any assumption about term start.
+  for(const l of rawLines){
+    const w=l.match(RE_WEEK); if(!w) continue;
+    let d=null;
+    const i2=l.match(RE_ISO), m2=l.match(RE_MON), n2=l.match(RE_NUM);
+    if(i2) d=new Date(+i2[1],+i2[2]-1,+i2[3]);
+    else if(m2){ const mi=MON[m2[1].toLowerCase().slice(0,3)]; d=new Date(m2[3]?+m2[3]:yearFor(mi),mi,+m2[2]); }
+    else if(n2){ const mi=+n2[1]-1; if(mi>=0&&mi<12)
+      d=new Date(n2[3]?(+n2[3]<100?2000+ +n2[3]:+n2[3]):yearFor(mi),mi,+n2[2]); }
+    if(!d||isNaN(d.getTime())) continue;
+    d.setDate(d.getDate()-(+w[1]-1)*7);
+    termStart=d; termSource="calibrated"; break;
+  }
+  if(meta.termStart){ termStart=new Date(meta.termStart+"T00:00:00"); termSource="user"; }
+  function weekDate(n){
+    if(!termStart) return null;
+    const d=new Date(termStart); d.setDate(d.getDate()+(n-1)*7);
+    if(classDay!==null){ const shift=(classDay-d.getDay()+7)%7; d.setDate(d.getDate()+shift); }
+    return d;
+  }
+
+  const items=[], gaps=[], grading=[];
+  const seen=new Set();
+
+  // Many syllabi number their meetings instead of dating them.
+  const SESSRE=/^(session|class|lecture|module)\s*#?\s*(\d{1,2})\b/i;
+  const WORDNUM={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
+  const marks=[];
+  rawLines.forEach((l,i)=>{ const m=l.trim().match(SESSRE); if(m) marks.push({i,n:+m[2]}); });
+  const sessionMode = marks.length>=3;
+  let dueOffset=0, dueTime=null, offsetText="";
+  if(sessionMode){
+    const om=text.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten|\d{1,2})\s+days?\s+after\b/i);
+    if(om){ dueOffset = WORDNUM[om[1].toLowerCase()] ?? +om[1]; offsetText=om[0]; }
+    const ot=text.match(/due[^.\n]{0,60}?\b(\d{1,2}):(\d{2})\s*(a\.?m\.?|p\.?m\.?)?/i);
+    if(ot){ let h=+ot[1]; const mi=+ot[2];
+      if(ot[3]&&/p/i.test(ot[3])&&h<12) h+=12;
+      if(ot[3]&&/a/i.test(ot[3])&&h===12) h=0;
+      dueTime=String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0"); }
+  }
+  function sessionDate(n){
+    if(!termStart || !(termSource==="user"||termSource==="calibrated")) return null;
+    const d=new Date(termStart); d.setDate(d.getDate()+(n-1)*7);
+    return d;
+  }
+  function addDays(d,k){ const x=new Date(d); x.setDate(x.getDate()+k); return x; }
+
+  const NOSESSION=/\bno\s+sess?ions?\b|\bno\s+class\b|thanksgiving|spring\s+break|fall\s+break|spring\s+recess|reading\s+week|holiday\b/i;
+  function runSessionMode(){
+    const seen2=new Set();
+    // count breaks announced before each session so the calendar does not run early
+    const skips=marks.map((mk,k)=>{
+      let n=0;
+      for(let j=0;j<k;j++){
+        const e=Math.min(marks[j+1]?marks[j+1].i:rawLines.length, marks[j].i+40);
+        if(NOSESSION.test(rawLines.slice(marks[j].i,e).join(" "))) n++;
+      }
+      return n;
+    });
+    marks.forEach((mk,k)=>{
+      const end=Math.min(marks[k+1]?marks[k+1].i:rawLines.length, mk.i+40);
+      const raw=rawLines.slice(mk.i,end);
+      const block=raw.join(" ").replace(/\s{2,}/g," ");
+      const sd=sessionDate(mk.n+skips[k]);
+      const shifted=skips[k];
+      const label="Session "+mk.n;
+
+      const push=(kind,title,when,tm,extraWhy,conf,locator)=>{
+        title=tidy(title).replace(/\s+/g," ").trim();
+        if(!title||title.length<3) return;
+        if(title.length>88) title=title.slice(0,85).replace(/\s\S*$/,"")+"…";
+        const key=mk.n+"|"+kind+"|"+title.toLowerCase();
+        if(seen2.has(key)) return; seen2.add(key);
+        let atLine=mk.i;
+        if(locator){
+          const probe=String(locator).slice(0,22).trim();
+          const j=raw.findIndex(r=>r.includes(probe));
+          if(j>=0) atLine=mk.i+j;
+        }
+        if(!when){
+          if(gaps.length<40) gaps.push({id:"s"+meta.fid+"-"+mk.n+"-"+seen2.size, code, file:meta.name,
+            line:rawLines[atLine]||(label+" — "+title), ln:atLine+1, session:mk.n,
+            note:"Dated by "+label+". Set your first class date and this becomes a real date."});
+          return;
+        }
+        items.push({ id:"s"+meta.fid+"-"+mk.n+"-"+seen2.size, code, k:kind, t:title,
+          d:toISO(when.getFullYear(),when.getMonth(),when.getDate()), tm,
+          c:conf, why:[["+",label+" mapped from the first class date you set"]]
+            .concat(shifted?[["+",shifted+" break week"+(shifted>1?"s":"")+" announced earlier in the syllabus pushed this later"]]:[])
+            .concat(extraWhy),
+          line:rawLines[atLine]||(label+" — "+title), ln:atLine+1,
+          matched:label, on:true, edited:false, file:meta.name });
+      };
+
+      // graded work: "Assignment #4 (Team) – Product Backlog"
+      let m;
+      const are=/\b(assignment|homework|hw|problem\s*set|pset|ps|project|deliverable|milestone|lab|quiz|paper|essay|report|memo|case\s*study)\s*#?\s*(\d{1,3})\b\s*(?:\(([^)]{0,18})\))?\s*[–—:-]?\s*([^|]{0,64})/gi;
+      while((m=are.exec(block))!==null){
+        const noun=m[1].replace(/\s+/g," ").trim();
+        const kind=/quiz/i.test(noun)?"x":"a";
+        const label=noun.charAt(0).toUpperCase()+noun.slice(1);
+        const who=m[3]?" ("+m[3].trim()+")":"";
+        const tail=(m[4]||"").split(/\s{2,}|Due:|•/)[0];
+        const inClassKind = kind==="x" || /^lab$/i.test(noun);
+        const when = (sd && dueOffset && !inClassKind) ? addDays(sd,dueOffset) : sd;
+        push(kind, label+" #"+m[2]+who+(tail.trim()?" — "+tail.trim():""), when,
+          inClassKind ? (classTime||"09:00") : (dueTime||"23:59"),
+          (dueOffset&&!inClassKind)
+            ?[["+",'Syllabus due rule: "'+offsetText+' the session"'+(dueTime?", at "+dueTime:"")]]
+            :[["−","No due date given for this item — placed on the session itself"]],
+          (dueOffset&&!inClassKind)?.78:.66, m[0]);
+      }
+      // exams
+      const ex=block.match(/\b(Midterm(?:\s+Exam)?|Final\s+Exam|End[\s-]of[\s-]Course\s+Exam)\b/i);
+      if(ex) push("x",ex[1].replace(/\s+/g," "),sd,classTime||"18:30",
+        [["−","Exam named in this session block; no separate date given"]],.70,ex[0]);
+      // in-class presentations
+      if(/\bTeam Presentations\b/.test(block))
+        push("a","Team Presentations",sd,classTime||"18:30",
+          [["·","Listed in the session block as an in-class activity"]],.70,"Team Presentations");
+      // readings
+      const rre=/\b([A-Z][A-Za-z]{2,14})\s+Ch\.?\s*(\d{1,2})(?:\s*[–—-]\s*([A-Za-z][A-Za-z ]{1,24}))?/g;
+      while((m=rre.exec(block))!==null){
+        if(/^(the|and|for|session|class|week|figure|table)$/i.test(m[1])) continue;
+        push("r","Read "+m[1]+" Ch. "+m[2]+(m[3]?" — "+m[3].trim():""),sd,classTime||"09:00",
+          [["·","Reading listed for this session"]],.68,m[0]);
+      }
+      const hre=/\b(HBR|Article|Case)\s*:\s*([^|•]{3,44})/gi;
+      while((m=hre.exec(block))!==null)
+        push("r","Read "+m[1]+": "+m[2].trim(),sd,classTime||"09:00",
+          [["·","Reading listed for this session"]],.66,m[0]);
+    });
+  }
+
+  // ---- is 03/04 the 3rd of April or March 4th? Let the document answer. ----
+  const RE_NUM_G=/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}|\d{2}))?\b/g;
+  let dayFirst=null, orderWhy="";
+  // "24/7 on call" and "1/2 of the grade" are not dates: only trust a slash pair that
+  // carries a year or sits next to scheduling language.
+  const DATECTX=/\b(due|date|dated|week|class|session|exam|quiz|assignment|submit|deadline|updated|revised)\b/i;
+  for(const n of text.matchAll(RE_NUM_G)){
+    const around=text.slice(Math.max(0,n.index-40), n.index+n[0].length+40);
+    if(!n[3] && !DATECTX.test(around)) continue;
+    if(+n[1]>12 && +n[1]<=31){ dayFirst=true;  orderWhy='"'+n[0]+'" can only be day-first'; break; }
+    if(+n[2]>12 && +n[2]<=31){ dayFirst=false; orderWhy='"'+n[0]+'" can only be month-first'; break; }
+  }
+  if(dayFirst===null){
+    // no decisive date: see which reading agrees with the weekdays the syllabus states
+    let md=0, dm=0;
+    const DAYN={sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6};
+    rawLines.forEach(l=>{
+      const w=l.match(RE_WKDAY); if(!w) return;
+      const n=l.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}|\d{2}))?\b/); if(!n) return;
+      const want=DAYN[w[1].toLowerCase().slice(0,3)];
+      const yy=n[3]?(+n[3]<100?2000+ +n[3]:+n[3]):year;
+      const a=new Date(yy,+n[1]-1,+n[2]), b=new Date(yy,+n[2]-1,+n[1]);
+      if(+n[2]<=12 && a.getMonth()===+n[1]-1 && a.getDay()===want) md++;
+      if(+n[1]<=12 && b.getMonth()===+n[2]-1 && b.getDay()===want) dm++;
+    });
+    if(md!==dm){ dayFirst = dm>md; orderWhy="the weekdays in this syllabus agree with "+(dm>md?"day-first":"month-first"); }
+  }
+  const orderAssumed = dayFirst===null;
+  if(meta.dateOrder){ dayFirst = meta.dateOrder==="dmy"; orderWhy="you set this"; }
+  else if(dayFirst===null) dayFirst=false;
+
+  function allDates(str){
+    const found=[];
+    let m;
+    const rx=(re,fn)=>{ const g=new RegExp(re.source,"gi"); while((m=g.exec(str))!==null){ const r=fn(m); if(r){ r.i=m.index; r.m=m[0];
+      const after=str.slice(m.index+m[0].length);
+      r.range=/^\s*[-–—]\s*(\d{1,2}\b|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(after);
+      r.end=m.index+m[0].length;
+      found.push(r); } } };
+    rx(RE_ISO, m=>({d:toISO(+m[1],+m[2]-1,+m[3]),yr:true}));
+    rx(RE_DOT, m=>{ const dd=+m[1], mi=+m[2]-1;           // day.month.year everywhere it is used
+      if(mi<0||mi>11||dd<1||dd>31) return null;
+      return {d:toISO(+m[3],mi,dd),yr:true}; });
+    rx(RE_DMY, m=>{ const mi=monIdx(m[2]); const dd=+m[1];
+      if(mi===undefined||dd<1||dd>31) return null;
+      return {d:toISO(m[3]?+m[3]:yearFor(mi),mi,dd),yr:!!m[3]}; });
+    rx(RE_MON, m=>{ const mi=monIdx(m[1]); const dd=+m[2];
+      if(mi===undefined) return null;
+      if(dd<1||dd>31) return null; return {d:toISO(m[3]?+m[3]:yearFor(mi),mi,dd),yr:!!m[3]}; });
+    rx(RE_NUM, m=>{
+      let mi=+m[1]-1, dd=+m[2];
+      if(dayFirst && +m[1]<=31 && +m[2]<=12){ mi=+m[2]-1; dd=+m[1]; }
+      if(mi<0||mi>11||dd<1||dd>31) return null;
+      const yy=m[3]?(+m[3]<100?2000+ +m[3]:+m[3]):yearFor(mi);
+      return {d:toISO(yy,mi,dd),yr:!!m[3],numeric:true}; });
+    rx(RE_WEEK, m=>{ const d=weekDate(+m[1]); if(!d) return null;
+      return {d:toISO(d.getFullYear(),d.getMonth(),d.getDate()),yr:false,wk:true,n:+m[1]}; });
+    // strongest first at the same position: iso/month/numeric beat week numbers
+    found.sort((a,b)=>(a.wk?1:0)-(b.wk?1:0) || a.i-b.i);
+    // "June 27-July 1" is one span: the second date is the end of a range, not a deadline
+    const byPos=found.filter(x=>!x.wk).sort((a,b)=>a.i-b.i);
+    byPos.forEach((d,j)=>{ const prev=byPos[j-1];
+      if(prev && /^\s*[-–—]\s*$/.test(str.slice(prev.end,d.i))) d.rangeEnd=true; });
+    return found;
+  }
+  function pickDate(str){
+    const all=allDates(str);
+    if(!all.length) return null;
+    let hard=all.filter(x=>!x.wk);
+    // "June 27-July 1" is one span: drop the end date so the start always wins
+    hard=hard.filter(x=>!x.rangeEnd);
+    const pool=hard.length?hard:all.filter(x=>!x.rangeEnd);
+    if(!pool.length) return null;
+    const dm=str.match(DUE);
+    if(RESCHED.test(str) && pool.length>1) return Object.assign({},pool[pool.length-1],{many:true,resched:true});
+    if(dm && pool.length>1){
+      const at=str.indexOf(dm[0]);
+      const after=pool.filter(x=>x.i>=at).sort((a,b)=>a.i-b.i);
+      if(after.length) return Object.assign({},after[0],{many:pool.length>1});
+    }
+    return Object.assign({},pool[0],{many:pool.length>1});
+  }
+  const DAYNAME={sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6};
+
+  rawLines.forEach((raw,idx)=>{
+    const line=raw.trim();
+    if(line.length<8) return;
+    if(/[<>]\s*\d{1,3}\s*%/.test(line)) return;
+
+    const gm=line.match(/^(.{2,40}?)\s+(\d{1,3})\s*%\s*$/);
+    if(gm){ grading.push([gm[1].replace(/[|\s]+$/,"").trim(),gm[2]+"%"]); return; }
+    if(line.includes("|")){
+      const cells=line.split(/\s*\|\s*/).map(c=>c.trim()).filter(Boolean);
+      const pc=cells.find(c=>/^\d{1,3}\s*%$/.test(c));
+      if(pc){ const lab=cells.filter(c=>c!==pc && /[a-z]{4}/i.test(c)).sort((a,b)=>b.length-a.length)[0];
+        if(lab) grading.push([lab.replace(/:$/,"").slice(0,44),pc.replace(/\s/g,"")]); }
+    }
+    if(CITE.test(line) && !DUE.test(line)) return;
+
+    if(sessionMode) return;
+    const lineAllRaw=allDates(line);
+    const lineHard=lineAllRaw.filter(x=>!x.wk && !x.rangeEnd);
+    const linePool=lineHard.length?lineHard:lineAllRaw.filter(x=>!x.rangeEnd);
+    const clauses=splitClauses(line);
+    const isRow=line.includes("|");
+    const rowHasDue=isRow && clauses.some(c=>DUE.test(c.t));
+    const cdates=clauses.map(c=>pickDate(c.t));
+    let madeOnLine=0;
+
+    clauses.forEach((cl,ci)=>{
+      const seg=cl.t;
+      if(madeOnLine>=4) return;
+      const isExam=EXAM.test(seg), isRead=READ.test(seg), hasDue=DUE.test(seg);
+      const isCode=isRow && CODEISH.test(seg.trim())
+        && !EXAM.test(seg) && !READ.test(seg) && !WORK.test(seg);
+      const isWork=WORK.test(seg) || isCode;
+      /* Says something is due but names nothing the vocabulary knows. Three words
+         minimum keeps out column headers like "DATE DUE" and "Deliverable". */
+      const unnamed = hasDue && !isExam && !isRead && !isWork
+        && seg.trim().length>6 && !HEADERISH.test(seg.trim());
+      if(!(isExam||isRead||isWork||unnamed)) return;
+      if(NOISE.test(seg) && !hasDue && seg.length<48) return;
+      if(rowHasDue && !hasDue && !isExam && !isRead) return;
+      if(NEG.test(seg)) return;
+      if(/\boffice hours?\b/i.test(seg)) return;
+      if(NOTASK.test(seg.trim())) return;
+      /* Policy prose only — a real schedule cell is short and states no policy. */
+      if(POLICY.test(seg) && !(/\bdue\b/i.test(seg) && seg.length<70)) return;
+
+      const own=pickDate(seg);
+      let hit=own, inherited=null;
+      if(!hit && isRow && linePool.length){
+        // table row: the date cell sits just before its note
+        const before=linePool.filter(x=>x.i<cl.at).sort((a,b)=>b.i-a.i)[0];
+        const after=linePool.filter(x=>x.i>=cl.at).sort((a,b)=>a.i-b.i)[0];
+        hit = before||after; inherited = before?"before":"after";
+      } else if(!hit){
+        // prose: only borrow from the sentence right next door, and only if it states a deadline
+        for(const j of [ci+1,ci-1]){
+          if(j<0||j>=clauses.length||!cdates[j]) continue;
+          if(!DUE.test(clauses[j].t)) continue;
+          hit=cdates[j]; inherited="adjacent"; break;
+        }
+      }
+      const why=[]; let base=.55;
+
+      let t=tidy(stripDates(seg).replace(RE_TIME," "));
+      if(t.length>92) t=t.slice(0,89).replace(/\s\S*$/,"")+"…";
+      if(unnamed && core(t).length<3) return;
+
+      const weekOnly = !hit && !termStart && (RE_WEEK.test(seg) || (!linePool.length && RE_WEEK.test(line)));
+      if(weekOnly){
+        if(gaps.length<30) gaps.push({id:"g"+meta.fid+"-"+idx+"-"+ci, code, file:meta.name, line:seg, ln:idx+1,
+          week:+((seg.match(RE_WEEK)||line.match(RE_WEEK))[1]),
+          note:"Dated by teaching week "+((seg.match(RE_WEEK)||line.match(RE_WEEK))[1])+". Set the term start date and this becomes a real date."});
+        return;
+      }
+      if(!hit){
+        const rec=seg.match(/\b(weekly|each week|every week|every (mon|tues?|wed(nes)?|thur?s?|fri)[a-z]*)\b/i);
+        if(rec && (isWork||isExam) && t.length>5){
+          const d0=weekDate(1);
+          madeOnLine++;
+          items.push({ id:meta.fid+"-"+idx+"-"+ci+"r", code, k:isExam?"x":"a", t,
+            d:toISO(d0.getFullYear(),d0.getMonth(),d0.getDate()), tm:classTime||"23:59",
+            c:.62, rrule:"FREQ=WEEKLY;COUNT=14",
+            why:[["+",'Recurring — the line says "'+rec[0]+'"'],
+                 ["−","No dates listed, so it starts at the first class meeting"],
+                 ["·","Repeats weekly for 14 weeks — change the count in your calendar if the term is shorter"]],
+            line:seg, ln:idx+1, matched:rec[0], on:true, edited:false, file:meta.name });
+          return;
+        }
+        if(isExam && !isWork && !hasDue && seg.length>70) return;
+        if((isWork||isExam||unnamed) && (GAPVERB.test(seg)||isExam) && (/\bdue\b/i.test(seg) || isExam || !GAPVERB2.test(seg)) && gaps.length<30){
+          gaps.push({id:"g"+meta.fid+"-"+idx+"-"+ci, code, file:meta.name, line:seg, ln:idx+1,
+            note:/\bt\.?b\.?[ad]\b/i.test(seg) ? "The syllabus itself says TBD."
+              : /\b(week|term|finals|end of|at some point)\b/i.test(seg)
+              ? "Names a rough time, but no date Syllify could resolve."
+              : "No date anywhere on this line."});
+        }
+        return;
+      }
+      if(!t || (t.length<5 && !CODEISH.test(t))) return;
+
+      const key=code+"|"+t.toLowerCase()+"|"+hit.d;
+      if(seen.has(key)) return; seen.add(key);
+
+      const k = isExam ? "x" : (isRead && !isWork) ? "r" : "a";
+      if(unnamed){ base-=.16; why.push(["−","Line says something is due, but Syllify does not recognise the item by name"]); }
+
+      let tmS = k==="r" ? "09:00" : "23:59";
+      const tmatch=seg.match(RE_TIME)||line.match(RE_TIME);
+      if(tmatch && seg.match(RE_TIME)){
+        let h=+tmatch[1]; const mi=tmatch[2]?+tmatch[2]:0; const pm=/p/i.test(tmatch[3]);
+        if(pm&&h<12)h+=12; if(!pm&&h===12)h=0;
+        tmS=String(h).padStart(2,"0")+":"+String(mi).padStart(2,"0");
+      } else if(/\b(1[3-9]|2[0-3]):([0-5]\d)\b/.test(seg)){
+        const h24=seg.match(/\b(1[3-9]|2[0-3]):([0-5]\d)\b/);
+        tmS=h24[1].padStart(2,"0")+":"+h24[2];
+      } else if(/\bmidnight\b/i.test(seg)) tmS="23:59";
+        else if(/\bnoon\b/i.test(seg)) tmS="12:00";
+      const inClass = /\bin[- ]class\b|\bpresented in class\b/i.test(seg) && classTime && !seg.match(RE_TIME);
+      if(inClass) tmS=classTime;
+
+      if(hit.wk){
+        if(termSource==="user"||termSource==="calibrated"){ base-=.04;
+          why.push(["+",'Teaching week "'+hit.m+'" mapped against the term start '+
+            (termSource==="user"?"you set":"found in this syllabus")]); }
+        else { base-=.13; why.push(["−",'No date on the row — resolved from "'+hit.m+'" against an assumed term calendar']); }
+      }
+      else { base+=hit.yr?.20:.15; why.push(["+","Date read off the page"+(hit.yr?", with a year":", year inferred from the term")]); }
+      if(!own && hit){
+        if(/\|/.test(line) && inherited==="before"){ base+=.02; why.push(["+","Date taken from the cell just before this note in the row"]); }
+        else if(/\|/.test(line)){ base-=.04; why.push(["−","No date before this note in the row — used the next one along"]); }
+        else { base-=.06; why.push(["−","Date came from elsewhere in the same sentence block"]); }
+      }
+      if(hit && hit.numeric){
+        if(orderAssumed){ base-=.07; why.push(["−",'Numeric date read as '+(dayFirst?"day/month":"month/day")+' — the syllabus never says which']); }
+        else if(orderWhy) why.push(["+",'Read as '+(dayFirst?"day/month":"month/day")+' because '+orderWhy]);
+      }
+      if(hit && hit.range){ base-=.08; why.push(["−",'Row covers a date range ("'+hit.m+'-…") — used the first day']); }
+      if(hit && hit.resched){ why.push(["+",'Line reschedules the deadline — took the later date']); }
+      if(hasDue){ base+=.13; why.push(["+",'Line states a due date or submission']); }
+      else if(/\b(before|by|prior to|no later than)\b/i.test(seg)){ base+=.07; why.push(["+",'Date is framed as a cutoff ("before" / "by")']); }
+      else { base-=.03; why.push(["−",'No explicit "due" wording']); }
+      if(seg.match(RE_TIME)){ base+=.08; why.push(["+","Time of day stated on the line"]); }
+      else if(inClass){ base+=.06; why.push(["+","Marked in class — used the meeting time from the header"]); }
+      else if(k!=="r"){ base-=.05; why.push(["−","No time stated — defaulted to 11:59 PM"]); }
+      else why.push(["·","No time stated — readings default to 9:00 AM"]);
+      const dn=seg.match(/\b(sun|mon|tues?|wednes|wed|thur?s?|fri|satur)(day)?\b/i);
+      if(dn){
+        const want=DAYNAME[dn[1].toLowerCase().slice(0,3)];
+        const [yy,mm,dd2]=hit.d.split("-").map(Number);
+        const got=new Date(yy,mm-1,dd2).getDay();
+        if(want===got){ base+=.05; why.push(["+","Weekday on the line matches that date"]); }
+        else { base-=.11; why.push(["−","Line says "+dn[0]+", but that date is a "+
+          ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][got]]); }
+      }
+      if(hit.many){ base-=.05; why.push(["−","Several dates on this line — took the one tied to the deadline"]); }
+      if(isCode){ base-=.05; why.push(["−",'Row cell is a short code ("'+seg.trim()+'") — Syllify kept it but cannot tell what kind of work it is']); }
+      else if(isExam||isWork){ base+=.07; why.push(["+","Names a recognized deliverable"]); }
+      else if(isRead && /\b(ch\.?\s*\d|chapter|pp\.?\s*\d|pages)\b/i.test(seg)){ base+=.06; why.push(["+","Reading cites a chapter or page range"]); }
+      if(seg.length>150){ base-=.07; why.push(["−","Long table row — the title may carry extra cells"]); }
+      if(/recommended|optional/i.test(seg)){ base-=.10; why.push(["−","Marked recommended or optional"]); }
+      if(/revision|accepted through/i.test(line)){ base-=.06; why.push(["−","More than one date on the row — took the first"]); }
+
+      madeOnLine++;
+      items.push({ id:meta.fid+"-"+idx+"-"+ci, code, k, t, d:hit.d, tm:tmS, numeric:!!hit.numeric,
+        c:Math.max(.34,Math.min(.99,base)), why, line:seg, ln:idx+1, matched:hit.m,
+        on:true, edited:false, file:meta.name });
+    });
+  });
+
+  if(sessionMode) runSessionMode();
+  // Is this a syllabus at all? Cheap signals, so a resume or an invoice is caught.
+  const sig=[];
+  let score=0;
+  if(codeFound){ score+=2; sig.push("course code"); }
+  if(tm||tm2){ score+=1; sig.push("term"); }
+  const dateCount=(text.match(new RegExp("\\b("+MONWORD+")[a-z]*\\.?\\s+\\d{1,2}\\b","gi"))||[]).length
+    + (text.match(new RegExp("\\b\\d{1,2}(?:st|nd|rd|th)?\\s+("+MONWORD+")","gi"))||[]).length
+    + (text.match(/\b\d{1,2}\/\d{1,2}\b/g)||[]).length;
+  if(dateCount>=3){ score+=2; sig.push(dateCount+" dates"); }
+  else if(marks.length>=3||(text.match(RE_WEEK)||[]).length){ score+=2; sig.push("session or week numbers"); }
+  const vocab=["syllabus","schedule","assignment","reading","exam","grading","instructor","due","office hours","prerequisite","attendance","academic integrity"]
+    .filter(w=>new RegExp("\\b"+w,"i").test(text));
+  score+=Math.min(4,vocab.length);
+  if(vocab.length) sig.push(vocab.length+" syllabus terms");
+  const likely = score>=5;
+
+  // ---- self-consistency: is anything outside the term it claims? ----
+  if(termStart){
+    const lo=new Date(termStart); lo.setDate(lo.getDate()-14);
+    const hi=new Date(termStart); hi.setDate(hi.getDate()+7*22);
+    items.forEach(it=>{
+      const d=new Date(it.d+"T00:00:00");
+      if(d<lo||d>hi){ it.c=Math.max(.3,it.c-.18);
+        it.why=it.why.concat([["−","This date falls outside the term this syllabus covers"]]); }
+    });
+  }
+
+  const merged=[];
+  items.forEach(it=>{
+    const lo=it.t.toLowerCase();
+    const dup=merged.find(o=>o.d===it.d && o.k===it.k &&
+      (o.t.toLowerCase().includes(lo) || lo.includes(o.t.toLowerCase())));
+    if(dup){
+      if(it.t.length>dup.t.length) dup.t=it.t;
+      if(it.c>dup.c){ dup.c=it.c; dup.why=it.why; dup.line=it.line; dup.ln=it.ln; }
+      return;
+    }
+    merged.push(it);
+  });
+  merged.sort((a,b)=>a.d.localeCompare(b.d));
+  items.length=0; merged.forEach(m=>items.push(m));
+  /* A long, clearly-syllabus document with plenty of text and almost no dates in it
+     has had its schedule table flattened into a picture. Very common in Word-to-PDF
+     exports. The document parses fine; the one page that matters is an image. Say so,
+     rather than showing a page of policy prose and calling it a result. */
+  const dateLines = rawLines.reduce((n,l)=>n+(allDates(l).some(x=>!x.wk)?1:0),0);
+  const noSchedule = likely && items.length===0 && !sessionMode && !RE_WEEK.test(text)
+    && rawLines.length>=40 && dateLines<6;
+
+  return { code, term: tm?(tm[1][0].toUpperCase()+tm[1].slice(1).toLowerCase()+" "+tm[2]):null,
+    instructor, items, gaps, grading, lines:rawLines.length, classTime, termStart, termSource,
+    likely, docScore:score, signals:sig, dayFirst, orderAssumed, orderWhy, dateLines, noSchedule,
+    hasNumericDates: /\b\d{1,2}\/\d{1,2}\b/.test(text),
+    needsTermStart: !termStart && (RE_WEEK.test(text)||sessionMode), sessionMode,
+    words:(text.match(/\S+/g)||[]).length, name:meta.name };
+}
+
+/* ============================== state ============================== */
+/* Open source means there is no shared key to ship. Whoever wants the AI pass
+   brings their own, and it never leaves their browser. */
+const AI={
+  get(){ try{ return JSON.parse(localStorage.getItem("syllify.ai")||"{}"); }catch(_){ return {}; } },
+  set(v){ try{ localStorage.setItem("syllify.ai", JSON.stringify(v)); }catch(_){} },
+  clear(){ try{ localStorage.removeItem("syllify.ai"); }catch(_){} }
+};
+const PROVIDERS={
+  anthropic:{label:"Anthropic (Claude)", model:"claude-haiku-4-5-20251001", vision:true,
+    keyHint:"sk-ant-…", get:"console.anthropic.com"},
+  openai:{label:"OpenAI", model:"gpt-4o-mini", vision:true, keyHint:"sk-…", get:"platform.openai.com"},
+  gemini:{label:"Google Gemini", model:"gemini-2.0-flash", vision:true, keyHint:"AIza…",
+    get:"aistudio.google.com"},
+  groq:{label:"Groq", model:"llama-3.3-70b-versatile", vision:false, keyHint:"gsk_…", get:"console.groq.com"},
+  openrouter:{label:"OpenRouter", model:"anthropic/claude-3.5-haiku", vision:true, keyHint:"sk-or-…",
+    get:"openrouter.ai"}
+};
+
+const S={ view:"landing", files:[], docs:[], items:[], gaps:[], grading:[], filter:"all",
+  sel:null, remind:"1440", uid:0, log:[], pasting:false, showAll:false, termStart:"", dateOrder:null, failNote:null, aiNote:null, aiBusy:false, verdictText:null, verdictNote:null, srcFile:0, addingLine:null, showSource:false, lens:"schedule", _was:null, settings:false };
+
+const app=document.getElementById("app"), navEl=document.getElementById("nav"), rightEl=document.getElementById("barRight");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const lv=e=>e.edited?"ok":e.c<.65?"low":e.c<.86?"med":"ok";
+const band=e=>e.edited?"EDIT":e.img?"IMAGE":e.ai?"AI":e.c>=.86?"READ":e.c>=.65?"INFER":"GUESS";
+const BANDWORD={READ:"Read off the page",INFER:"Inferred",GUESS:"Guessed",EDIT:"Confirmed by you",
+  IMAGE:"Read from a picture of the page — check this one against your PDF",
+  AI:"Found by AI, then checked against the line it cited"};
+const on=()=>S.items.filter(e=>e.on);
+const CHECK='<svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>';
+
+function fmtD(d){ if(!d) return "—"; const [y,m,dd]=d.split("-").map(Number);
+  return new Date(y,m-1,dd).toLocaleDateString("en-US",{month:"short",day:"2-digit",year:"numeric"}); }
+function fmtT(t){ if(!t) return ""; let [h,m]=t.split(":").map(Number); const ap=h>=12?"PM":"AM"; h=h%12||12;
+  return h+":"+String(m).padStart(2,"0")+" "+ap; }
+
+/* ============================== chrome ============================== */
+/* The result is one document, so the bar carries places within it — not modes.
+   Nothing here changes state; each button scrolls. */
+function drawChrome(){
+  const ready=(S.items.length>0||S.gaps.length>0)&&S.view==="result";
+  navEl.innerHTML = ready
+    ? [["verdict","Semester"],["schedule","Schedule"],["calendar","Calendar"]]
+        .map(([id,l])=>`<button data-jump="${id}">${l}</button>`).join("")
+    : "";
+  const cfg=AI.get(); const on=!!(cfg.key||cfg.endpoint||AI_ENDPOINT);
+  rightEl.innerHTML =
+    `<button class="lnk" id="aiSetup" title="${on?"AI is on":"Turn on the AI pass"}" style="font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid var(--line-2);border-radius:var(--r);padding:5px 9px">AI ${on?"on":"off"}</button>`
+    + (ready
+        ? `<button class="btn sec sm" data-go="upload">Add syllabus</button>`
+        : ((S.view!=="upload" && !(S.view==="result" && !S.items.length && !S.gaps.length)) ? `<button class="btn sm" data-go="upload">Try it</button>` : ""));
+}
+
+/* ============================== views ============================== */
+function vLanding(){
+  return `<div class="narrow" style="margin:0 auto">
+    <section class="hero">
+      <div class="lbl kick">Syllabus week</div>
+      <h1>Know which weeks hurt. In week one.</h1>
+      <p class="lede">Drop in every syllabus you were handed. Get the whole term on your calendar.</p>
+      <div class="acts">
+        <button class="btn lg" data-go="upload">Add your syllabi <span class="tri">▲</span></button>
+        <button class="btn sec lg" data-sample="ISE 588">See an example</button>
+      </div>
+    </section>
+
+    <div class="showcase">
+      <div class="lbl">What you get back</div>
+      <p class="quoteline">The week of October 14 is your heaviest: a midterm, two assignments and three readings.</p>
+    </div>
+
+    <div class="grid3">
+      <div class="cell"><h3>Reads the PDFs</h3><p>In your browser. No account.</p></div>
+      <div class="cell"><h3>Shows its working</h3><p>Every date links to its line.</p></div>
+      <div class="cell"><h3>Admits what it missed</h3><p>Undated items are listed, not dropped.</p></div>
+    </div>
+
+    <div class="foot"><span>No account</span><span>Runs in your browser</span><span>Prototype</span></div>
+  </div>`;
+}
+
+function vUpload(){
+  return `<div class="narrow" style="margin:0 auto">
+    ${S.failNote?`<div class="warnbar"><b>${esc(S.failNote.title)}</b> ${esc(S.failNote.body)}</div>`:""}
+    <h2 style="font-size:26px">Add your syllabi</h2>
+    <p style="color:var(--ink-2);margin-top:6px">All of them. They merge into one term.</p>
+
+    ${S.pasting ? `
+      <div style="margin-top:20px">
+        <label class="lbl" for="pasteBox">Paste the schedule</label>
+        <textarea class="paste" id="pasteBox" style="margin-top:8px" placeholder="Paste your syllabus text…"></textarea>
+        <div style="display:flex;gap:9px;margin-top:11px;flex-wrap:wrap">
+          <button class="btn" id="pasteAdd">Add this text</button>
+          <button class="btn sec" data-paste="0">Back to files</button>
+        </div>
+      </div>` : `
+      <div class="drop" id="drop" style="margin-top:20px">
+        <div class="big">Drop syllabus files here</div>
+        <div class="sm">PDF or TXT</div>
+        <div class="acts">
+          <button class="btn sec" id="chooseBtn">Choose files</button>
+          <button class="btn sec" data-paste="1">Paste text instead</button>
+        </div>
+        <input type="file" id="fileInput" multiple accept=".pdf,.txt,.md" hidden>
+      </div>`}
+
+    ${S.files.length?`<ul class="files">${S.files.map(f=>`
+      <li><span class="ext">${esc(f.ext)}</span><span class="nm">${esc(f.name)}</span>
+        <span class="sz">${esc(f.size)}</span>
+        <button class="rm" data-rm="${f.id}" aria-label="Remove ${esc(f.name)}">×</button></li>`).join("")}</ul>`:""}
+
+    <div class="chips"><span class="lbl" style="margin-right:4px">Samples</span>
+      ${Object.keys(SAMPLES).map(k=>`<button class="chip" data-sample="${k}" ${S.files.some(f=>f.sample===k)?"disabled":""}>${k}</button>`).join("")}
+    </div>
+
+    ${(S.files.length||S.items.length)?`<div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+      ${S.files.length?`<button class="btn lg" id="runBtn">Read ${S.files.length===1?"it":"all "+S.files.length} <span class="tri">▲</span></button>`:""}
+      ${S.items.length?`<button class="btn sec lg" data-go="result">Back to my semester</button>`:""}
+    </div>`:""}
+    <p class="lbl" style="margin-top:16px">${AI_ENDPOINT||(window.claude&&window.claude.use)?"Read in this tab. Only the AI pass sends text, and only when it runs.":"Nothing leaves this tab."}</p>
+  </div>`;
+}
+
+function vParsing(){
+  return `<div class="narrow" style="margin:0 auto">
+    <div class="lbl">Extracting</div>
+    <h2 style="font-size:26px;margin:8px 0 18px">Reading ${S.files.length} file${S.files.length>1?"s":""}</h2>
+    <div class="term">
+      <div class="tb"><i></i><span>syllify — parse</span></div>
+      <pre id="logOut"></pre>
+    </div>
+  </div>`;
+}
+
+function aiNote(){
+  if(S.aiBusy) return `<div class="ainote"><b>Reading with AI…</b> Every row it returns gets checked against your document.</div>`;
+  const n=S.aiNote; if(!n) return "";
+  if(n.error) return `<div class="ainote"><b>AI pass:</b> ${esc(n.error)}</div>`;
+  return `<div class="ainote"><b>AI:</b> ${n.added} added${
+    n.rejected.length?`, ${n.rejected.length} rejected`:""}${
+    n.imaged?`, ${n.imaged} page${n.imaged===1?"":"s"} read as an image`:""}${
+    n.tok?` · ~${n.tok} tokens`:""}.
+    ${n.rejected.length?`<ul>${n.rejected.slice(0,5).map(r=>`<li>${esc(r[0])} — ${esc(r[1])}</li>`).join("")}</ul>`:""}</div>`;
+}
+function warnBar(){
+  const img=S.docs.filter(d=>d.noSchedule);
+  if(img.length){
+    const canSee = AI_ENDPOINT || (window.claude && window.claude.use);
+    return `<div class="warnbar"><b>The schedule in ${esc(img.map(d=>d.name).join(", "))} is a picture, not text.</b>
+      Syllify read ${img[0].lines} lines of it and found ${img[0].dateLines} date${img[0].dateLines===1?"":"s"}, so the term calendar is a table saved as an image. ${
+      canSee
+        ? `Syllify is sending that page to the AI to be read. Rows that come back are marked <b>IMAGE</b> — check those against your PDF, because there is no text layer to verify them against.`
+        : `Open the PDF, select the schedule table, copy it, and use <b>Paste text instead</b> on the upload screen.`}</div>`;
+  }
+  const bad=S.docs.filter(d=>!d.likely);
+  if(!bad.length) return "";
+  return `<div class="warnbar"><b>This may not be a syllabus.</b> ${esc(bad.map(d=>d.name).join(", "))} — ${
+    bad[0].signals.length?"only "+esc(bad[0].signals.join(", ")):"no course code, term or schedule"}. Check every row.</div>`;
+}
+/* ── the result is one document ───────────────────────────────────────────────
+   Verdict, schedule, calendar. Undated items sit in the schedule with the rest;
+   the marked-up document is a lens on the same data, not another destination. */
+function vResult(){
+  if(!S.items.length && !S.gaps.length) return vUpload();
+  return `<div class="res enter">
+    ${warnBar()}
+    ${aiNote()}
+    ${orderBar()}
+    ${secVerdict()}
+    ${secSchedule()}
+    ${secCalendar()}
+    ${dock()}
+  </div>`;
+}
+
+function orderBar(){
+  if(!S.items.some(i=>i.numeric)) return "";
+  const d=S.docs.find(x=>x.hasNumericDates)||{};
+  return `<div class="orderbar" style="margin-top:14px">
+    <span>Reading <b>03/04</b> as <b>${d.dayFirst?"day / month":"month / day"}</b>${d.orderAssumed?" — a guess":""}</span>
+    <button class="btn sec sm" id="flipOrder">Switch</button>
+  </div>`;
+}
+
+function dock(){
+  const n=on().length;
+  return `<div class="dock">
+    <div class="dock-in">
+      <span class="lbl">${n} selected${S.gaps.length?` · ${S.gaps.length} undated`:""}</span>
+      <div style="display:flex;gap:9px;margin-left:auto;flex-wrap:wrap">
+        <button class="btn sec" data-out="csv">CSV</button>
+        <button class="btn" data-add="1" ${n?"":"disabled"}>Add ${n} to calendar <span class="tri">▲</span></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function secSchedule(){
+  const flagged=S.items.filter(e=>band(e)==="GUESS").length;
+  const counts={all:S.items.length,a:S.items.filter(e=>e.k==="a").length,
+    r:S.items.filter(e=>e.k==="r").length,x:S.items.filter(e=>e.k==="x").length,flag:flagged};
+  const list=S.items.filter(e=> S.filter==="all"?true:
+    S.filter==="flag"?band(e)==="GUESS":e.k===S.filter);
+  const showGaps = S.gaps.length && (S.filter==="all"||S.filter==="flag");
+
+  return `<section class="zone" id="schedule">
+    <div class="zone-h">
+      <div>
+        <h2>${S.lens==="document"?"What it read":`${S.items.length} deadline${S.items.length===1?"":"s"} found${S.gaps.length?`, ${S.gaps.length} undated`:""}`}</h2>
+        <p class="sub">${S.lens==="document"
+          ? `Unmarked lines were skipped.`
+          : `Open a row for its source.`}</p>
+      </div>
+      <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+      ${(!S.aiNote&&!S.aiBusy)?`<button class="btn sec sm" id="aiBtn">Read with AI</button>`:""}
+      <div class="lens" role="group" aria-label="View">
+        <button data-lens="schedule" aria-pressed="${S.lens!=="document"}">Schedule</button>
+        <button data-lens="document" aria-pressed="${S.lens==="document"}">Document</button>
+      </div></div>
+    </div>
+
+    ${S.lens==="document" ? secDocument() : `
+      <div class="stats" style="margin-bottom:14px">
+        <div class="stat"><b>${S.docs.reduce((a,d)=>a+d.lines,0)}</b><span>Lines read</span></div>
+        <div class="stat"><b>${S.items.filter(e=>band(e)==="READ").length}</b><span>Read</span></div>
+        <div class="stat"><b>${S.items.filter(e=>band(e)==="INFER").length}</b><span>Inferred</span></div>
+        <div class="stat"><b>${flagged}</b><span>Guessed</span></div>
+        ${S.items.some(e=>e.ai)?`<div class="stat"><b>${S.items.filter(e=>e.ai).length}</b><span>By AI</span></div>`:""}
+        <div class="stat"><b>${S.gaps.length}</b><span>No date</span></div>
+      </div>
+
+      <div class="filters">
+        ${[["all","All"],["a","Assignments"],["r","Readings"],["x","Exams"],["flag","Guessed"]]
+          .map(([k,l])=>`<button data-filter="${k}" aria-pressed="${S.filter===k}">${l} ${counts[k]}</button>`).join("")}
+        <span style="flex:1"></span>
+        <button id="srcAll" aria-pressed="${S.showSource}" title="Show the syllabus line behind every row">${S.showSource?"Hide source lines":"Show source lines"}</button>
+      </div>
+
+      <div class="tbl">
+        <div class="tr thead"><span></span><span>Type</span><span>Item</span><span>Due</span><span style="text-align:right">Evidence</span><span></span></div>
+        ${list.length||showGaps?"":`<div class="empty">Nothing in this filter.</div>`}
+        ${list.map(e=>`
+          <button class="tr" data-row="${e.id}" data-ai="${!!e.ai}" data-lv="${lv(e)}" data-off="${!e.on}" data-edited="${e.edited}" data-sel="${S.sel===e.id}">
+            <span class="cb" role="checkbox" tabindex="0" aria-checked="${e.on}" aria-label="Include ${esc(e.t)}" data-tog="${e.id}">${CHECK}</span>
+            <span class="kind">${e.k==="r"?"Reading":e.k==="x"?"Exam":"Assign"}</span>
+            <span class="ttl"><b>${esc(e.t)}</b><span class="src-code">${esc(e.code)} · ${e.img?"p"+e.page+" image":"L"+e.ln}</span></span>
+            <span class="dt">${fmtD(e.d)}</span>
+            <span class="cf" title="${BANDWORD[band(e)]}">${band(e)}</span>
+            <span class="caret">›</span>
+            ${S.showSource?`<span class="inlinesrc">${esc(e.line||"").slice(0,240)}</span>`:""}
+          </button>`).join("")}
+        ${showGaps?S.gaps.map(g=>`
+          <div class="tr gaprow" data-gaprow="${g.id}">
+            <span class="cb" style="visibility:hidden"></span>
+            <span class="kind">${/exam|midterm|quiz|final/i.test(g.line)?"Exam":/\bread|chapter\b/i.test(g.line)?"Reading":"Assign"}</span>
+            <span class="ttl">${esc(g.line.replace(/^[\s•\-–—*·>|]+/,"").slice(0,110))}<span class="src-code">${esc(g.code)} · L${g.ln}</span></span>
+            <span class="dt"><input type="date" class="gapdate" data-gapdate="${g.id}" aria-label="Set a date for ${esc(g.t||g.line.slice(0,40))}"></span>
+            <span class="cf">NO DATE</span>
+            <button class="dismiss" data-gdrop="${g.id}" aria-label="Dismiss this line">×</button>
+            <span class="inlinesrc">${esc(g.note||"No date found.")}</span>
+          </div>`).join(""):""}
+      </div>
+
+      ${S.gaps.filter(g=>g.week||g.session).length?`<div class="row-between" style="margin-top:12px">
+        <span class="lbl" style="text-transform:none;letter-spacing:0;font-size:12.5px">${S.gaps.filter(g=>g.week||g.session).length} are dated by ${S.gaps.some(g=>g.session)?"session":"week"} number. When is your first class?</span>
+        <input type="date" class="gapdate" id="termStart" value="${S.termStart||""}" aria-label="First class date" style="width:132px">
+      </div>`:""}
+
+      ${S.grading.length?`<div style="margin-top:20px">
+        <div class="lbl">Also found — grading weights</div>
+        <div class="chips">${S.grading.map(g=>`<span class="chip">${esc(g[0])} · ${esc(g[1])}</span>`).join("")}</div>
+      </div>`:""}
+    `}
+  </section>`;
+}
+
+function secVerdict(){
+  const v=computeVerdict();
+  if(!v) return `<section class="zone" id="verdict"><div class="prose">
+    <div class="lbl">Your semester</div>
+    <h2 style="font-size:24px;margin:7px 0 8px">Nothing selected yet</h2>
+    <p style="color:var(--ink-2)">Tick some deadlines in the schedule below and the read-out appears here.</p>
+  </div></section>`;
+
+  const worstKeys=new Set(v.worst.map(w=>+w.start));
+
+  return `<section class="zone" id="verdict">
+    <div class="lbl">Your semester</div>
+    <h2 style="font-size:28px;margin:7px 0 18px;letter-spacing:-.05em">${v.total} going on your calendar, across ${v.courses.length} course${v.courses.length===1?"":"s"}</h2>
+    <div class="vgrid"><div class="prose">
+
+    ${S.verdictText?`<div class="verdict">${esc(S.verdictText).split(/\n\n+/).map(x=>`<p>${x.replace(/\n/g," ")}</p>`).join("")}
+      <div class="lbl" style="margin-top:12px">Written from the figures below — all computed from your files.</div></div>`
+    :`<div class="verdict quiet bare">
+      <p>${(function(){
+        const w=v.worst[0], parts=[];
+        if(w.x) parts.push(w.x+" exam"+(w.x>1?"s":""));
+        if(w.a) parts.push(w.a+" assignment"+(w.a>1?"s":""));
+        if(w.r) parts.push(w.r+" reading"+(w.r>1?"s":""));
+        const listed = parts.length>1 ? parts.slice(0,-1).join(", ")+" and "+parts[parts.length-1] : (parts[0]||"nothing");
+        const names = v.worst.map(x=>wkLabel(x.start));
+        return v.worst.length===1
+          ? "The week of "+names[0]+" is your heaviest: "+listed+"."
+          : names.length+" weeks tie for heaviest — "+names.slice(0,-1).join(", ")+" and "+names[names.length-1]+" — each with "+listed+".";
+      })()}</p>
+      ${S.verdictNote?`<p style="font-size:13.5px;color:var(--ink-2)">${esc(S.verdictNote)}</p>`:""}
+      <div style="margin-top:10px"><button class="btn sec sm" id="verdictAI">Write it up</button></div>
+    </div>`}
+
+    <div class="stats" style="margin-top:18px">
+      <div class="stat"><b>${v.exams}</b><span>Exams</span></div>
+      <div class="stat"><b>${v.assignments}</b><span>Assignments</span></div>
+      <div class="stat"><b>${v.readings}</b><span>Readings</span></div>
+      ${v.pages?`<div class="stat"><b>${v.pages}</b><span>Pages stated</span></div>`:""}
+      ${v.chapters?`<div class="stat"><b>${v.chapters}</b><span>Chapters</span></div>`:""}
+    </div>
+
+    ${v.clashes.length?`<div class="flag">
+      <b>${v.clashes.length} day${v.clashes.length>1?"s":""} with more than one thing due</b>
+      <ul>${v.clashes.slice(0,4).map(([d,items])=>`<li>${fmtD(d)} — ${items.map(i=>esc(i.code+": "+i.t)).join("; ")}</li>`).join("")}</ul>
+    </div>`:""}
+    ${v.pileups.length?`<div class="flag">
+      <b>${v.pileups.length} stretch${v.pileups.length>1?"es":""} with three or more deadlines inside 72 hours</b>
+      <ul>${v.pileups.slice(0,3).map(p=>`<li>From ${fmtD(p.start)} — ${p.items.length} items: ${p.items.map(i=>esc(i.t)).slice(0,4).join("; ")}</li>`).join("")}</ul>
+    </div>`:""}
+    ${v.lateGrade&&v.lateGrade.pct>=25?`<div class="flag"><b>${v.lateGrade.pct}% of your grade lands in the final three weeks</b>
+      </div>`:""}
+
+    ${(!v.clashes.length && !v.pileups.length)?`<div class="flag" style="border-left-color:var(--line-3)">
+      <b>Nothing stacks up</b></div>`:""}
+
+    </div><div>
+    <div class="lbl">Week by week</div>
+    <div class="weeks" style="margin-top:8px">
+      ${v.weeks.map(w=>`
+        <div class="wk" data-heavy="${worstKeys.has(+w.start)}">
+          <span class="wl">${wkLabel(w.start)}</span>
+          <span class="track">${w.items.slice(0,26).map(e=>`<i class="u" data-t="${e.k}" title="${esc(e.code+": "+e.t)}"></i>`).join("")}</span>
+          <span class="c">${w.items.length}</span>
+        </div>`).join("")}
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--ink)"></i> Exam</span>
+      <span><i style="background:var(--ink-3)"></i> Assignment</span>
+      <span><i style="background:var(--line-3)"></i> Reading</span>
+    </div>
+    </div></div>
+  </section>`;
+}
+
+function secCalendar(){
+  const n=on().length, ev=on();
+  return `<section class="zone" id="calendar">
+    <div class="zone-h">
+      <div>
+        <h2>Put it on your calendar</h2>
+        <p class="sub">One .ics file. Open it and the whole term imports.</p>
+      </div>
+      <div class="row-between" style="margin:0;padding:7px 12px">
+        <span class="lbl">Remind me</span>
+        <select class="sel" id="remind">
+          ${[["0","At the deadline"],["60","1 hour before"],["1440","1 day before"],["2880","2 days before"],["10080","1 week before"]]
+            .map(o=>`<option value="${o[0]}" ${S.remind===o[0]?"selected":""}>${o[1]}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+    <button class="btn lg" data-add="1" style="width:100%;height:52px;font-size:15.5px" ${n?"":"disabled"}>
+      Add ${n} deadline${n===1?"":"s"} to my calendar <span class="tri">▲</span></button>
+
+    <div class="lbl" style="margin-top:26px">Or one at a time — opens Google Calendar</div>
+    <div class="tbl" style="margin-top:10px">
+      ${ev.slice(0,S.showAll?ev.length:6).map(e=>`
+        <a class="tr trlink" href="${gcalURL(e)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:grid;grid-template-columns:78px 1fr 116px 44px">
+          <span class="kind">${e.k==="r"?"Reading":e.k==="x"?"Exam":"Assign"}</span>
+          <span class="ttl"><b>${esc(e.t)}</b></span>
+          <span class="dt">${fmtD(e.d)}</span>
+          <span class="lbl" style="text-align:right">Add</span>
+        </a>`).join("")}
+      ${ev.length?"":`<div class="empty">Nothing selected.</div>`}
+    </div>
+    ${ev.length>6&&!S.showAll?`<button class="lnk" data-showall="1" style="margin-top:10px">Show all ${ev.length}</button>`:""}
+
+    <div class="foot"><span>No account</span><span>Runs in your browser</span><span>Prototype</span></div>
+  </section>`;
+}
+
+/* ============================== drawer ============================== */
+function drawer(){
+  const e=S.items.find(x=>x.id===S.sel);
+  document.querySelectorAll(".scrim,.drawer").forEach(n=>n.remove());
+  if(!e) return;
+  const scrim=document.createElement("div"); scrim.className="scrim"; scrim.dataset.close="1";
+  const d=document.createElement("aside"); d.className="drawer"; d.setAttribute("role","dialog"); d.setAttribute("aria-label","Source for "+e.t);
+  const hl = e.matched
+    ? esc(e.line).split(esc(e.matched)).join("<mark>"+esc(e.matched)+"</mark>")
+    : esc(e.line);
+  d.innerHTML=`
+    <header>
+      <div><div class="lbl">${esc(e.code)} · ${esc(e.file)} · ${e.img?"page "+e.page+", read from the image":"line "+e.ln}</div>
+        <h3 style="margin-top:6px">${esc(e.t)}</h3></div>
+      <button class="x" data-close="1" aria-label="Close">×</button>
+    </header>
+    <div class="body">
+      <div class="blk"><div class="lbl">Source line</div><div class="quote">${hl}</div></div>
+      <div class="blk"><div class="lbl">Extracted</div>
+        <dl class="kv">
+          <dt>Type</dt><dd>${e.k==="r"?"Reading":e.k==="x"?"Exam":"Assignment"}</dd>
+          <dt>Date</dt><dd>${fmtD(e.d)}</dd>
+          <dt>Time</dt><dd>${fmtT(e.tm)}</dd>
+          <dt>Evidence</dt><dd>${BANDWORD[band(e)]}</dd>
+          <dt>Score</dt><dd>${e.c.toFixed(2)} <span class="lbl" style="text-transform:none;letter-spacing:0">— an internal ranking, not a probability</span></dd>
+        </dl></div>
+      <div class="blk"><div class="lbl">How that score was reached</div>
+        <ul class="reasons">${e.why.map(w=>`<li><span class="sgn">${w[0]}</span><span>${esc(w[1])}</span></li>`).join("")}</ul></div>
+      <div class="blk"><div class="lbl">Correct it</div>
+        <div class="fields">
+          <div class="fld"><label class="lbl" for="e-t">Title</label><input id="e-t" value="${esc(e.t)}"></div>
+          <div class="two">
+            <div class="fld"><label class="lbl" for="e-d">Date</label><input id="e-d" type="date" value="${e.d}"></div>
+            <div class="fld"><label class="lbl" for="e-m">Time</label><input id="e-m" type="time" value="${e.tm}"></div>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button class="btn sm" data-save="${e.id}">Save</button>
+            <button class="btn sec sm" data-tog="${e.id}">${e.on?"Exclude from export":"Include in export"}</button>
+          </div>
+        </div></div>
+    </div>`;
+  document.body.append(scrim,d);
+}
+
+/* ============================== render ============================== */
+/* Re-rendering must not throw the reader back to the top. Scroll resets only when
+   the view genuinely changes; everything else keeps your place on the page. */
+function render(){
+  const moved = S._was !== S.view;
+  const y = window.scrollY;
+  drawChrome();
+  app.innerHTML = S.view==="landing"?vLanding()
+    : S.view==="upload"?vUpload()
+    : S.view==="parsing"?vParsing()
+    : vResult();
+  drawer();
+  if(S.view==="parsing") runAll();
+  if(S.pasting){ const p=document.getElementById("pasteBox"); if(p) p.focus(); }
+  if(moved){ window.scrollTo({top:0,behavior:"instant"}); S._was=S.view; }
+  else window.scrollTo({top:y,behavior:"instant"});
+  watchDock();
+}
+
+let dockWatch=null;
+function watchDock(){
+  if(dockWatch){ dockWatch.disconnect(); dockWatch=null; }
+  const cal=document.getElementById("calendar"), dk=document.querySelector(".dock");
+  if(!cal||!dk||!("IntersectionObserver" in window)) return;
+  dockWatch=new IntersectionObserver(es=>{
+    dk.classList.toggle("tuck", es[0].intersectionRatio>0.35);
+  },{threshold:[0,0.35,1]});
+  dockWatch.observe(cal);
+}
+
+function jump(id){
+  const el=document.getElementById(id); if(!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 64;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({top, behavior: reduce?"instant":"smooth"});
+}
+
+/* ============================== pipeline ============================== */
+function log(s){ S.log.push(s); const o=document.getElementById("logOut");
+  if(o){ o.innerHTML=S.log.join("\n"); o.scrollTop=o.scrollHeight; } }
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function readPDF(file){
+  if(!window.pdfjsLib) throw new Error("PDF reader unavailable");
+  pdfjsLib.GlobalWorkerOptions.workerSrc="vendor/pdf.worker.min.js";
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const lines=[];
+  const pageChars=[];   // characters of real text per page
+  const pageHead=[];    // whether the page announces a schedule
+  for(let n=1;n<=pdf.numPages;n++){
+    const before=lines.length;
+    const tc=await (await pdf.getPage(n)).getTextContent();
+    const rows=new Map();
+    tc.items.forEach(it=>{
+      if(!it.str||!it.str.trim()) return;
+      const y=Math.round(it.transform[5]/2.4)*2.4;
+      if(!rows.has(y)) rows.set(y,[]);
+      rows.get(y).push({x:it.transform[4],s:it.str,w:it.width||0});
+    });
+    [...rows.keys()].sort((a,b)=>b-a).forEach(y=>{
+      const cells=rows.get(y).sort((a,b)=>a.x-b.x);
+      let out="",end=null;
+      cells.forEach(c=>{
+        if(end!==null){ const gap=c.x-end; out += gap>16?" | ":(gap>1?" ":""); }
+        out+=c.s; end=c.x+c.w;
+      });
+      const t=out.replace(/\s{2,}/g," ").trim();
+      if(t) lines.push(t);
+    });
+    const mine=lines.slice(before);
+    pageChars.push(mine.join(" ").length);
+    pageHead.push(mine.some(l=>/\b(course plan|course schedule|schedule of|tentative|timetable|calendar|weekly schedule|class schedule)\b/i.test(l)));
+  }
+  return {lines,pages:pdf.numPages,pageChars,pageHead};
+}
+
+/* A page that announces a schedule and then says almost nothing has drawn that
+   schedule as a picture. Those are the only pages worth paying vision tokens for. */
+function picturePages(f){
+  const c=f.pageChars||[], h=f.pageHead||[];
+  if(!c.length) return [];
+  const sorted=[...c].sort((a,b)=>a-b);
+  const median=sorted[Math.floor(sorted.length/2)]||0;
+  return c.map((chars,i)=>({
+      page:i+1, chars,
+      score:(h[i]?3:0)+(chars<Math.max(240,median*0.35)?2:0)+(h[i]&&chars<600?2:0)
+    })).filter(x=>x.score>=3).sort((a,b)=>b.score-a.score||a.chars-b.chars)
+    .slice(0,2).map(x=>x.page);
+}
+
+/* Render those pages to JPEG so a vision model can read what the text layer lost. */
+async function renderPages(f, pages){
+  if(!window.pdfjsLib||!f.blob||!pages.length) return [];
+  const pdf=await pdfjsLib.getDocument({data:await f.blob.arrayBuffer()}).promise;
+  const out=[];
+  for(const n of pages){
+    const page=await pdf.getPage(n);
+    /* Vision models bill by pixels, and most cap the long edge anyway. 1400 keeps a
+       dense 30-row table legible at roughly 2,000 tokens a page instead of 3,100. */
+    const base=page.getViewport({scale:1});
+    const long=Math.max(base.width, base.height);
+    const vp=page.getViewport({scale:Math.min(2.2, 1400/long)});
+    const cv=document.createElement("canvas");
+    cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+    const ctx=cv.getContext("2d");
+    ctx.fillStyle="#fff"; ctx.fillRect(0,0,cv.width,cv.height);
+    await page.render({canvasContext:ctx, viewport:vp}).promise;
+    out.push({page:n, data:cv.toDataURL("image/jpeg",0.72)});
+  }
+  return out;
+}
+
+/* Clean a raw line list: drop repeated page furniture, rejoin wrapped sentences. */
+function prepLines(lines){
+  const tally={};
+  lines.forEach(l=>{tally[l]=(tally[l]||0)+1;});
+  const kept=lines.filter(l=>{
+    if(l.length<3) return false;
+    if(tally[l]>=3 && l.length<70) return false;
+    if(/^page\s*\d+(\s*of\s*\d+)?$/i.test(l)) return false;
+    return true;
+  });
+  /* PDFs and spreadsheets hand us tab-separated rows. Treat a tab like a pipe so
+     column attribution works and titles stop carrying the whole row. */
+  const cols=kept.map(l=>l.includes("\t")?l.replace(/\t+/g," | ").replace(/\s*\|\s*/g," | ").trim():l);
+  /* A real schedule row almost always opens with a week, session or date. A fragment
+     left behind by a PDF line-wrap does not — so anything that is not a row opener,
+     following a row that is, is the tail of that row. Without this, one wrapped table
+     row becomes three unrelated lines and its date and its deliverable never meet. */
+  const ROWSTART=/^(week|wk|session|ses|class|lecture|lec|module|unit|day|part|topic|assessment|assignment)\s*#?\s*\d|^\d{1,2}\s*[|.)\-]|^(mon|tues?|wed(nes)?|thur?s?|fri|satur|sun)(day)?\b|^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+\d|^\d{1,2}[-\/.]\d{1,2}|^\d{1,2}\s*[-\/]\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  const out=[];
+  cols.forEach(l=>{
+    const prev=out[out.length-1];
+    const proseWrap = prev && !prev.includes("|") && !l.includes("|") && prev.length>35 && l.length<130
+      && !/[.:;!?]$/.test(prev) && (/^[a-z(]/.test(l) || /^(AM|PM)\b/.test(l));
+    /* A tail with no pipe of its own, following a real table row and not opening a
+       new one, is that row's continuation. Deliberately conservative: a tail that
+       still carries a pipe is left alone, because treating row openers as the only
+       boundary glues legitimate rows together in real documents (verified against
+       UTas assessment tables and MIT 7.016). PDF line-wrap is therefore improved,
+       not solved — see the known limitations. */
+    const tableWrap = prev && prev.split("|").length>=2 && !l.includes("|")
+      && !ROWSTART.test(l) && l.length>18 && l.length<170;
+    if(proseWrap || tableWrap) out[out.length-1]=prev+" "+l;
+    else out.push(l);
+  });
+  return out;
+}
+
+async function runAll(){
+  S.log=[]; S.docs=[]; S.items=[]; S.gaps=[]; S.grading=[]; S.failNote=null; S.aiNote=null;
+  log('<span class="dim">$</span> syllify parse '+S.files.map(f=>f.name).join(" "));
+  for(const f of S.files){
+    let lines=null;
+    if(f.text){ lines=f.text.replace(/\r/g,"").split("\n"); }
+    else if(f.blob){
+      try{
+        if(/\.pdf$/i.test(f.name)){
+          const r=await readPDF(f.blob); lines=r.lines;
+          f.pageChars=r.pageChars; f.pageHead=r.pageHead;
+          log('<span class="dim">→</span> '+esc(f.name)+' <span class="dim">· '+r.pages+' pages</span>');
+        } else lines=(await f.blob.text()).replace(/\r/g,"").split("\n");
+      }catch(err){
+        log('<span class="dim">→ '+esc(f.name)+' — could not read ('+esc(err.message||"error")+')</span>');
+        continue;
+      }
+    }
+    if(!lines) continue;
+    lines=prepLines(lines.map(l=>l.trim()).filter(Boolean));
+    if(lines.join("").replace(/\s/g,"").length<120){
+      log('<span class="dim">→ '+esc(f.name)+' — no text layer found. If it is a scan, paste the text instead.</span>');
+      continue;
+    }
+    f.lines=lines;
+    const doc=parse(lines,{name:f.name,fid:f.id,termStart:S.termStart,dateOrder:S.dateOrder});
+    log('<span class="dim">→</span> '+esc(doc.code)+(doc.term?' <span class="dim">'+esc(doc.term)+'</span>':'')+
+        ' <span class="dim">·</span> '+doc.items.length+' <span class="dim">dated,</span> '+doc.gaps.length+' <span class="dim">undated</span>');
+    S.docs.push(doc);
+    S.items=S.items.concat(doc.items);
+    S.gaps=S.gaps.concat(doc.gaps);
+    doc.grading.forEach(g=>S.grading.push(g));
+  }
+  S.items.sort((a,b)=>a.d.localeCompare(b.d));
+  if(!S.items.length && !S.gaps.length){
+    const d=S.docs[0];
+    S.failNote = d && !d.likely
+      ? {title:"That doesn't look like a syllabus.",
+         body:"Syllify found "+(d.signals.length?"only "+d.signals.join(", "):"none of the usual signals")+
+              " — no schedule it could read. If this really is a syllabus, paste just the schedule section as text."}
+      : {title:"No deadlines found.",
+         body:"The text came through, but nothing in it looked like a dated deliverable. Pasting just the schedule section usually works better than the whole document."};
+    log('<span class="dim">—</span> '+S.failNote.title);
+    await wait(900); S.view="upload"; render(); return;
+  }
+  S.view = "result";
+  render();
+  if(await aiReachable()) runAI(true);
+}
+
+function addGap(id, d){
+  const g=S.gaps.find(x=>x.id===id); if(!g||!d) return;
+  const t=g.line.replace(/^[\s•\-–—*·>|]+/,"").replace(/[.\s]+$/,"").slice(0,90);
+  S.items.push({id:g.id, code:g.code,
+    k:/exam|midterm|quiz|final/i.test(g.line)?"x":/\bread|chapter\b/i.test(g.line)?"r":"a",
+    t, d, tm:"23:59", c:1, edited:true, why:[["+","Date supplied by you"]],
+    line:g.line, ln:g.ln, matched:"", on:true, file:g.file||g.code});
+  S.items.sort((a,b)=>a.d.localeCompare(b.d));
+  S.gaps=S.gaps.filter(x=>x.id!==g.id);
+  render();
+  toast("Added for "+fmtD(d)+".");
+}
+
+function reparse(){
+  /* Anything the student confirmed, corrected, dated by hand, or that the AI pass
+     added and verified is theirs — a re-parse must not throw it away. */
+  const keep=S.items.filter(e=>e.edited||e.ai);
+  S.docs=[]; S.items=[]; S.gaps=[]; S.grading=[];
+  S.files.forEach(f=>{
+    const lines=f.lines || (f.text?prepLines(f.text.replace(/\r/g,"").split("\n").map(l=>l.trim()).filter(Boolean)):null);
+    if(!lines) return;
+    f.lines=lines;
+    const doc=parse(lines,{name:f.name,fid:f.id,termStart:S.termStart,dateOrder:S.dateOrder});
+    S.docs.push(doc); S.items=S.items.concat(doc.items); S.gaps=S.gaps.concat(doc.gaps);
+    doc.grading.forEach(g=>S.grading.push(g));
+  });
+  keep.forEach(k=>{
+    if(!S.items.some(e=>e.id===k.id)) S.items.push(k);
+    S.gaps=S.gaps.filter(g=>g.id!==k.id);
+  });
+  S.items.sort((a,b)=>a.d.localeCompare(b.d));
+  if(S.sel && !S.items.some(e=>e.id===S.sel)) S.sel=null;
+}
+
+/* ============================== your syllabus, marked up ============================== */
+/* The fastest way to see whether an extraction is right is to look at your own document
+   with the used lines marked. What is not marked is what was skipped. */
+
+function looksDated(l){
+  return RE_MON.test(l) || RE_NUM.test(l) || RE_ISO.test(l) || RE_DOT.test(l) || RE_WEEK.test(l) || /^\s*(session|class|lecture|module)\s*#?\s*\d/i.test(l);
+}
+function looksLikeWork(l){ return WORK.test(l) || EXAM.test(l) || DUE.test(l); }
+
+function sourceModel(){
+  const f=S.files[S.srcFile] || S.files[0];
+  if(!f || !f.lines) return null;
+  const used=new Map(), gapped=new Map();
+  S.items.forEach(i=>{ if(i.file===f.name){ (used.get(i.ln)||used.set(i.ln,[]).get(i.ln)).push(i); } });
+  S.gaps.forEach(g=>{ if(!g.file || g.file===f.name){ (gapped.get(g.ln)||gapped.set(g.ln,[]).get(g.ln)).push(g); } });
+  const rows=f.lines.map((l,idx)=>{
+    const ln=idx+1;
+    const items=used.get(ln)||[];
+    const gaps=items.length?[]:(gapped.get(ln)||[]);
+    const numbered=/\b(assignment|homework|hw|problem\s*set|pset|quiz|exam|project|paper|report|lab|milestone)\s*#?\s*\d{1,3}\b/i.test(l);
+    const suspicious = !items.length && !gaps.length && l.length>12 &&
+      ((looksDated(l) && looksLikeWork(l)) || numbered);
+    return {ln,l,items,gaps,suspicious};
+  });
+  return {f,rows,
+    usedCount:rows.filter(r=>r.items.length).length,
+    gapCount:rows.filter(r=>r.gaps.length).length,
+    suspCount:rows.filter(r=>r.suspicious).length};
+}
+
+function secDocument(){
+  const m=sourceModel();
+  if(!m) return `<div class="empty">Nothing loaded.</div>`;
+
+  return `<div>
+    <p class="sub" style="margin-bottom:14px;max-width:none">Click a skipped line to add it.</p>
+
+    ${S.files.length>1?`<div class="chips" style="margin-top:14px"><span class="lbl" style="margin-right:4px">File</span>
+      ${S.files.map((f,i)=>`<button class="chip" data-src="${i}" ${i===S.srcFile?'style="border-color:var(--ink);color:var(--ink)"':''}>${esc(f.name)}</button>`).join("")}</div>`:""}
+
+    <div class="stats" style="margin-top:16px">
+      <div class="stat"><b>${m.rows.length}</b><span>Lines read</span></div>
+      <div class="stat"><b>${m.usedCount}</b><span>Produced a date</span></div>
+      <div class="stat"><b>${m.gapCount}</b><span>Found, undated</span></div>
+      <div class="stat"><b>${m.suspCount}</b><span>Worth a look</span></div>
+    </div>
+
+    ${m.suspCount?`<div class="flag"><b>${m.suspCount} line${m.suspCount>1?"s":""} worth a look</b></div>`
+      :`<div class="flag" style="border-left-color:var(--line-3)"><b>Nothing skipped that looks like a deadline</b></div>`}
+
+    <div class="legend" style="margin:16px 0 8px">
+      <span><i style="background:var(--ink)"></i> Used</span>
+      <span><i style="background:var(--panel);border:1px solid var(--line-3)"></i> Found but undated</span>
+      <span><i style="background:var(--panel);border:1px dashed var(--usc)"></i> Worth a look</span>
+    </div>
+
+    <div class="src">${m.rows.map(r=>{
+      const cls = r.items.length?"used":r.gaps.length?"nodate":r.suspicious?"susp":"";
+      return `<div class="srow ${cls}" ${r.items.length||r.suspicious||r.gaps.length?`data-line="${r.ln}"`:""}>
+        <span class="sn">${r.ln}</span>
+        <span class="st">${esc(r.l)}</span>
+        ${r.items.map(i=>`<span class="sout">→ ${fmtD(i.d)} · ${esc(i.t)}</span>`).join("")}
+        ${r.gaps.length?`<span class="sout dim">→ recognised, no date found</span>`:""}
+        ${r.suspicious?`<span class="sout dim">→ nothing extracted · <b>click to add</b></span>`:""}
+        ${S.addingLine===r.ln?`<span class="sadd">
+          <input id="slTitle" value="${esc(r.l.replace(/\s{2,}/g," ").slice(0,80))}" aria-label="What is due">
+          <input id="slDate" type="date" aria-label="When">
+          <button class="mini solid" data-saveline="${r.ln}">Add</button>
+          <button class="mini" data-cancelline="1">Cancel</button>
+        </span>`:""}
+      </div>`;}).join("")}</div>
+  </div>`;
+}
+
+/* ============================== semester verdict ============================== */
+/* Every number here is computed from the extracted items. The model is given these
+   numbers and asked to write the read-out — it is never asked for a fact. */
+
+function weekKey(d){ const x=new Date(d+"T00:00:00"); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function computeVerdict(){
+  const ev=on().filter(e=>e.d);
+  if(!ev.length) return null;
+  const weeks=new Map();
+  ev.forEach(e=>{
+    const k=weekKey(e.d), key=k.toISOString().slice(0,10);
+    if(!weeks.has(key)) weeks.set(key,{start:k,a:0,r:0,x:0,items:[],courses:new Set()});
+    const w=weeks.get(key);
+    w[e.k]++; w.items.push(e); w.courses.add(e.code);
+  });
+  const list=[...weeks.values()].sort((a,b)=>a.start-b.start);
+  list.forEach(w=>{ w.load = w.x*3 + w.a*2 + w.r*1; });
+  const peak=Math.max(...list.map(w=>w.load));
+  const worst=list.filter(w=>w.load===peak);
+  const quiet=list.filter(w=>w.load===Math.min(...list.map(x=>x.load)));
+
+  // pages and chapters actually stated in the readings
+  let pages=0, chapters=0;
+  ev.filter(e=>e.k==="r").forEach(e=>{
+    const pr=e.t.match(/pp?\.?\s*(\d{1,4})\s*[-–—]\s*(\d{1,4})/i);
+    if(pr && +pr[2]>+pr[1]) pages += (+pr[2]-+pr[1]+1);
+    const cr=e.t.match(/ch\.?\s*(\d{1,2})\s*[-–—]\s*(\d{1,2})/i);
+    if(cr && +cr[2]>+cr[1]) chapters += (+cr[2]-+cr[1]+1);
+    else if(/\bch\.?\s*\d/i.test(e.t)) chapters += 1;
+  });
+
+  // deadlines stacked inside 72 hours, and days carrying more than one exam
+  const hard=ev.filter(e=>e.k!=="r").sort((a,b)=>a.d.localeCompare(b.d));
+  const pileups=[];
+  for(let i=0;i<hard.length;i++){
+    const win=hard.filter(o=>{
+      const g=(new Date(o.d)-new Date(hard[i].d))/864e5; return g>=0 && g<=3;
+    });
+    if(win.length>=3 && !pileups.some(p=>p.items[0].id===win[0].id)) pileups.push({start:hard[i].d,items:win});
+  }
+  const byDay={};
+  ev.forEach(e=>{ (byDay[e.d]=byDay[e.d]||[]).push(e); });
+  const clashes=Object.entries(byDay).filter(([d,v])=>
+    v.filter(e=>e.k==="x").length>=2 ||
+    (v.filter(e=>e.k!=="r").length>=2 && new Set(v.map(e=>e.code)).size>=2) ||
+    (v.length>=3 && new Set(v.map(e=>e.code)).size>=2));
+
+  // where the grade sits, when the weights can be matched to real items
+  let lateGrade=null;
+  if(S.grading.length){
+    const end=new Date(ev[ev.length-1].d); const cut=new Date(end); cut.setDate(cut.getDate()-21);
+    let matched=0, total=0, late=0;
+    S.grading.forEach(([label,pct])=>{
+      const w=parseInt(pct,10); if(isNaN(w)) return;
+      total+=w;
+      const key=label.toLowerCase().split(/\s+/).filter(x=>x.length>3)[0];
+      if(!key) return;
+      const it=ev.find(e=>e.t.toLowerCase().includes(key));
+      if(it){ matched+=w; if(new Date(it.d)>=cut) late+=w; }
+    });
+    if(total>0 && matched/total>=0.5) lateGrade={pct:Math.round(late/total*100),matched:Math.round(matched/total*100)};
+  }
+
+  return {
+    courses:[...new Set(ev.map(e=>e.code))],
+    total:ev.length, exams:ev.filter(e=>e.k==="x").length,
+    assignments:ev.filter(e=>e.k==="a").length, readings:ev.filter(e=>e.k==="r").length,
+    pages, chapters, weeks:list, worst, quiet, peak, pileups, clashes, lateGrade,
+    first:ev[0].d, last:ev[ev.length-1].d
+  };
+}
+const wkLabel=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+
+async function runVerdictAI(){
+  const v=computeVerdict(); if(!v) return;
+  const btn=document.getElementById("verdictAI");
+  let sample=null;
+  try{ sample = window.claude&&window.claude.use ? await window.claude.use("sample") : null; }catch(_){ sample=null; }
+  if(!sample){ S.verdictNote="This copy of Syllify cannot call a model. The figures below are computed from your syllabi either way."; render(); return; }
+  if(btn){ btn.disabled=true; btn.textContent="Writing…"; }
+  const facts={
+    courses:v.courses, deadlines:v.total, exams:v.exams, assignments:v.assignments,
+    readings:v.readings, stated_pages:v.pages, chapters:v.chapters,
+    worst_weeks:v.worst.map(w=>({week_of:wkLabel(w.start),exams:w.x,assignments:w.a,readings:w.r,
+      courses:[...w.courses],items:w.items.map(i=>i.t).slice(0,8)})),
+    quietest_weeks:v.quiet.map(w=>wkLabel(w.start)),
+    pileups:v.pileups.map(p=>({starting:p.start,count:p.items.length,items:p.items.map(i=>i.code+": "+i.t)})),
+    same_day_clashes:v.clashes.map(([d,items])=>({date:d,items:items.map(i=>i.code+": "+i.t)})),
+    grade_in_final_three_weeks_pct: v.lateGrade?v.lateGrade.pct:null,
+    term:{from:v.first,to:v.last}
+  };
+  try{
+    const {text}=await sample(
+`Here are computed facts about one student's semester, taken from their course syllabi. Write the read-out they should see.
+
+Rules:
+- Use ONLY these numbers. Do not add, estimate or infer any figure that is not here.
+- Three short paragraphs, maximum 110 words total. Second person. Plain, direct, no hype, no exclamation marks.
+- Paragraph 1: the shape of the term in one or two sentences.
+- Paragraph 2: the worst stretch, named by date, and what is in it.
+- Paragraph 3: one concrete thing to do about it this week.
+- Do not open with "You have" or "This semester". Do not use the words "journey", "dive", "navigate" or "crucial".
+
+FACTS:
+`+JSON.stringify(facts,null,1),{modelTier:"default"});
+    S.verdictText=text.trim(); S.verdictNote=null;
+  }catch(e){
+    const c=e&&e.code;
+    S.verdictNote = c==="not_granted"||c==="sampling_disabled" ? "You declined, so nothing was sent to Claude. The figures below are computed from your syllabi anyway."
+      : c==="rate_limited" ? "Too many requests just now — try again in a minute."
+      : "The write-up did not come through. The figures below are computed from your syllabi anyway.";
+  }
+  render();
+}
+
+/* ============================== AI pass ============================== */
+/* Rules miss formats they have never seen. The model generalises, but it also invents.
+   So nothing the model returns is trusted: every item must cite a line of the real
+   document, and the title must actually appear in that line. */
+
+/* The student pays for these tokens, so send the fewest that can still answer the
+   question. Policy prose never produces a deadline, so it never goes. Lines the
+   rules already used DO go: one row can hold two deliverables, and catching the
+   second is the whole reason the model is here. */
+const CANDIDATE=l=>(/\d/.test(l) && l.length>6) || WORK.test(l) || EXAM.test(l) || READ.test(l);
+function aiLines(f){
+  const L=f.lines||[];
+  const picked=L.map((l,i)=>({i,l})).filter(x=>CANDIDATE(x.l));
+  let out=[],n=0;
+  for(const x of picked){
+    const line = x.l.length>180 ? x.l.slice(0,180) : x.l;
+    n += line.length+8; if(n>7000) break;
+    out.push({i:x.i, l:line});
+  }
+  return out;
+}
+function aiPrompt(f){
+  const rows=aiLines(f).map(x=>x.i+"\t"+x.l).join("\n");
+  return `Extract graded deliverables from these numbered syllabus lines.
+
+Reply with ONLY a JSON array of:
+{"line":<a number from below>,"title":"<copied from that line>","type":"assignment"|"reading"|"exam","date":"YYYY-MM-DD" or null,"time":"HH:MM" or null}
+
+- "line" must exist below and must contain the title.
+- Give a date only if that line states one, or states a session/week number the syllabus dates elsewhere. Otherwise null. Never guess a date; null is a correct answer.
+- Invent nothing. Copy titles verbatim, do not expand them.
+
+Example: [{"line":42,"title":"Problem Set 3","type":"assignment","date":"2025-10-14","time":"23:59"}]
+
+LINES:
+${rows}`;
+}
+
+/* A picture has no line numbers, so the model is asked to quote the row it read.
+   That quote is what the student checks against, and what verification uses. */
+function visionPrompt(pages){
+  return `These images are pages from a course syllabus. The schedule on them is a table that could not be read as text.
+
+Read the table and reply with ONLY a JSON array of:
+{"page":<page number>,"row":"<the row's text, copied as you see it>","title":"<the deliverable's name>","type":"assignment"|"reading"|"exam","date":"YYYY-MM-DD" or null,"time":"HH:MM" or null}
+
+- One object per graded deliverable: assignments, exams, quizzes, projects, presentations.
+- Do not list topics, lectures or readings with no deliverable attached.
+- Give a date only if the row shows one. If the row shows a day and month with no year, use the year the rest of the syllabus implies. Otherwise null.
+- Never guess. Invent nothing that is not printed on the page.
+- "row" must be what that line of the table actually says.
+
+Pages provided: ${pages.join(", ")}`;
+}
+
+/* Image rows cannot be checked against a text line, so the checks are: the quote
+   must be substantial, the title must appear inside the quote, the page must be one
+   we actually sent, and any date must sit inside the term. */
+function visionVerify(raw, pages, doc){
+  const kept=[], rejected=[];
+  const start=doc.termStart?new Date(doc.termStart):null;
+  const words=t=>String(t||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w.length>3);
+  (Array.isArray(raw)?raw:[]).forEach(r=>{
+    const title=String(r&&r.title||"").trim();
+    const row=String(r&&r.row||"").trim();
+    if(!title){ return; }
+    if(row.length<6){ rejected.push([title,"quoted no row from the page"]); return; }
+    if(!pages.includes(+r.page)){ rejected.push([title,"cites a page that was not sent"]); return; }
+    const w=words(title);
+    if(w.length && !w.some(x=>row.toLowerCase().includes(x))){
+      rejected.push([title,"does not appear in the row it quotes"]); return; }
+    let d=null, tm="23:59";
+    if(r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date)){
+      const dt=new Date(r.date+"T00:00:00");
+      if(isNaN(dt)){ rejected.push([title,"date is not a real date"]); return; }
+      if(start){
+        const lo=new Date(start); lo.setDate(lo.getDate()-21);
+        const hi=new Date(start); hi.setDate(hi.getDate()+24*7);
+        if(dt<lo||dt>hi){ rejected.push([title,"date falls outside the term"]); return; }
+      }
+      d=r.date;
+    }
+    if(r.time && /^\d{2}:\d{2}$/.test(r.time)) tm=r.time;
+    kept.push({title,row,page:+r.page,type:r.type,date:d,time:tm});
+  });
+  return {kept,rejected};
+}
+
+function aiVerify(raw, f, doc){
+  const L=f.lines||[];
+  const kept=[], rejected=[];
+  const norm=t=>String(t||"").toLowerCase().replace(/[^a-z0-9 ]/g," ").split(/\s+/).filter(w=>w.length>3);
+  (Array.isArray(raw)?raw:[]).forEach((r,n)=>{
+    const ln=Number(r&&r.line);
+    const title=String(r&&r.title||"").trim();
+    if(!title||!Number.isInteger(ln)||ln<0||ln>=L.length){ rejected.push([title||"(untitled)","cites no real line"]); return; }
+    const src=L[ln];
+    const toks=norm(title);
+    const hit=toks.filter(w=>src.toLowerCase().includes(w)).length;
+    if(toks.length && hit===0){ rejected.push([title,"does not appear on line "+ln]); return; }
+    let d=null;
+    if(r.date && /^\d{4}-\d{2}-\d{2}$/.test(r.date)){
+      const t=new Date(r.date+"T00:00:00");
+      if(!isNaN(t.getTime())) d=r.date;
+    }
+    if(d && doc.termStart){
+      const lo=new Date(doc.termStart); lo.setDate(lo.getDate()-21);
+      const hi=new Date(doc.termStart); hi.setDate(hi.getDate()+7*24);
+      const t=new Date(d+"T00:00:00");
+      if(t<lo||t>hi){ rejected.push([title,"date falls outside the term"]); return; }
+    }
+    const k = /exam|quiz|midterm|final/i.test(r.type||"") ? "x" : /read/i.test(r.type||"") ? "r" : "a";
+    const why=[["+",'Found by AI on line '+ln],
+               ["+",'Checked: the words of this title do appear on that line'],
+               d?["·","Date taken from the document, not invented"]:["−","The AI found no date for this one"]];
+    kept.push({ id:"ai"+f.id+"-"+n, code:doc.code, k, t:title.slice(0,92),
+      d, tm:(typeof r.time==="string"&&/^\d{2}:\d{2}$/.test(r.time))?r.time:(k==="r"?"09:00":"23:59"),
+      c:.60, ai:true, why, line:src, ln:ln+1, matched:"", on:true, edited:false, file:f.name });
+  });
+  return {kept,rejected};
+}
+
+function aiMerge(kept){
+  let added=0, dupes=0;
+  const norm=t=>t.toLowerCase().replace(/[^a-z0-9]/g,"");
+  kept.forEach(it=>{
+    if(!it.d){
+      if(!S.gaps.some(g=>norm(g.line).includes(norm(it.t)))){
+        S.gaps.push({id:it.id,code:it.code,file:it.file,line:it.line,ln:it.ln,
+          note:"The AI recognised this as work but found no date for it."});
+      }
+      return;
+    }
+    const dup=S.items.some(o=>o.d===it.d && (norm(o.t).includes(norm(it.t))||norm(it.t).includes(norm(o.t))));
+    if(dup){ dupes++; return; }
+    S.items.push(it); added++;
+  });
+  S.items.sort((a,b)=>a.d.localeCompare(b.d));
+  return {added,dupes};
+}
+
+async function aiReachable(){
+  const cfg=AI.get();
+  if(cfg.endpoint) return "endpoint";
+  if(cfg.key && PROVIDERS[cfg.provider]) return "key";
+  if(AI_ENDPOINT) return "endpoint";
+  try{ if(window.claude&&window.claude.use && await window.claude.use("sample")) return "sample"; }catch(_){}
+  return null;
+}
+function stripData(u){ const m=/^data:(image\/[a-z]+);base64,(.+)$/.exec(u||""); return m?{media:m[1],b64:m[2]}:null; }
+
+/* Calls the viewer's own provider straight from their browser. No server of ours
+   sits in the middle, which is the point: there is nothing for us to run or pay for. */
+async function aiDirect(prompt, images, cfg){
+  const P=PROVIDERS[cfg.provider]; const model=cfg.model||P.model;
+  const imgs=(images||[]).map(stripData).filter(Boolean);
+  if(imgs.length && !P.vision) throw {code:"no_vision",message:P.label+" cannot read images"};
+  let url, headers, body, read;
+  if(cfg.provider==="anthropic"){
+    url="https://api.anthropic.com/v1/messages";
+    headers={"content-type":"application/json","x-api-key":cfg.key,
+      "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"};
+    body={model,max_tokens:1600,temperature:0,messages:[{role:"user",content:imgs.length
+      ?[...imgs.map(i=>({type:"image",source:{type:"base64",media_type:i.media,data:i.b64}})),{type:"text",text:prompt}]
+      :prompt}]};
+    read=d=>(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+  } else if(cfg.provider==="gemini"){
+    url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)
+      +":generateContent?key="+encodeURIComponent(cfg.key);
+    headers={"content-type":"application/json"};
+    body={contents:[{parts:[...imgs.map(i=>({inline_data:{mime_type:i.media,data:i.b64}})),{text:prompt}]}],
+      generationConfig:{temperature:0,maxOutputTokens:1600}};
+    read=d=>((d.candidates||[])[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+  } else {
+    const base=cfg.provider==="groq"?"https://api.groq.com/openai/v1"
+      :cfg.provider==="openrouter"?"https://openrouter.ai/api/v1":"https://api.openai.com/v1";
+    url=base+"/chat/completions";
+    headers={"content-type":"application/json",authorization:"Bearer "+cfg.key};
+    body={model,temperature:0,max_tokens:1600,messages:[{role:"user",content:imgs.length
+      ?[...imgs.map(i=>({type:"image_url",image_url:{url:"data:"+i.media+";base64,"+i.b64}})),{type:"text",text:prompt}]
+      :prompt}]};
+    read=d=>((d.choices||[])[0]?.message?.content)||"";
+  }
+  let r;
+  try{ r=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)}); }
+  catch(e){ throw {code:"blocked",message:"your browser could not reach "+PROVIDERS[cfg.provider].label
+    +". Some providers refuse direct browser calls — use a Worker URL instead."}; }
+  if(r.status===401||r.status===403) throw {code:"bad_key",message:"that key was refused"};
+  if(r.status===429) throw {code:"rate_limited",message:"rate limited"};
+  if(!r.ok) throw {code:"upstream_error",message:PROVIDERS[cfg.provider].label+" returned "+r.status};
+  const t=read(await r.json())||"";
+  const a=t.indexOf("["), b=t.lastIndexOf("]");
+  if(a<0||b<a) throw {code:"invalid_json",message:"no array in reply",text:t};
+  return JSON.parse(t.slice(a,b+1));
+}
+
+async function aiAsk(prompt, images){
+  const cfg=AI.get();
+  if(cfg.key && PROVIDERS[cfg.provider] && !cfg.endpoint) return aiDirect(prompt,images,cfg);
+  const ep=cfg.endpoint||AI_ENDPOINT;
+  if(ep){
+    const r=await fetch(ep,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify(images&&images.length?{prompt,images}:{prompt})});
+    if(!r.ok) throw {code:r.status===429?"rate_limited":"upstream_error",message:"endpoint "+r.status};
+    const j=await r.json();
+    const t=typeof j==="string"?j:(j.text||j.output||"");
+    const a=t.indexOf("["), b=t.lastIndexOf("]");
+    if(a<0||b<a) throw {code:"invalid_json",message:"no array in reply",text:t};
+    return JSON.parse(t.slice(a,b+1));
+  }
+  const sample=await window.claude.use("sample");
+  if(images&&images.length){
+    let ok=false;
+    try{ ok=!!(await sample.limits()).images; }catch(_){ ok=false; }
+    if(!ok) throw {code:"no_vision",message:"this account cannot send images"};
+    return await sample.json(prompt,{modelTier:"default",images});
+  }
+  return await sample.json(prompt,{modelTier:"default"});
+}
+
+async function runAI(auto){
+  const how=await aiReachable();
+  if(!how){ if(!auto) aiSheet(); return; }
+  const btn=document.getElementById("aiBtn");
+  if(btn){ btn.disabled=true; btn.textContent="Reading…"; }
+  if(auto){ S.aiBusy=true; render(); }
+  let added=0,dupes=0,rej=[],spent=0,imaged=0;
+  try{
+    for(const f of S.files){
+      const doc=S.docs.find(d=>d.name===f.name)||S.docs[0]||{};
+
+      /* The text layer lost the schedule. Text is worthless here, so send the page
+         itself — but only the one or two pages that actually hold it. */
+      if(doc.noSchedule){
+        const pages=picturePages(f);
+        if(!pages.length) continue;
+        let shots=[];
+        try{ shots=await renderPages(f,pages); }catch(_){ shots=[]; }
+        if(!shots.length) continue;
+        imaged+=shots.length;
+        spent+=shots.length*2000;   // a rendered page costs roughly this much to look at
+        const vraw=await aiAsk(visionPrompt(pages), shots.map(x=>x.data));
+        const vv=visionVerify(vraw,pages,doc);
+        rej=rej.concat(vv.rejected);
+        const m=aiMerge(vv.kept.map((k,i)=>({
+          id:"img-"+f.id+"-"+k.page+"-"+i, code:doc.code||"Course",
+          k: k.type==="exam"?"x" : k.type==="reading"?"r" : "a",
+          t:k.title.slice(0,92), d:k.date, tm:k.time, c:.62, img:true, ai:true,
+          why:[["+","Read from the image of page "+k.page],
+               ["−","No text layer to check it against — compare it with your PDF"]],
+          line:k.row, ln:0, page:k.page, matched:"", on:true, file:f.name, edited:false
+        })));
+        added+=m.added; dupes+=m.dupes;
+        continue;
+      }
+
+      const prompt=aiPrompt(f);
+      if(prompt.indexOf("LINES:\n")===prompt.length-7) continue;
+      spent+=Math.ceil(prompt.length/3.7);
+      const raw=await aiAsk(prompt);
+      const v=aiVerify(raw,f,doc);
+      const m=aiMerge(v.kept);
+      added+=m.added; dupes+=m.dupes; rej=rej.concat(v.rejected);
+    }
+    S.aiNote={added,dupes,rejected:rej,auto:!!auto,tok:spent,imaged};
+  }catch(e){
+    const c=e&&e.code;
+    S.aiNote={error:
+      c==="not_granted"||c==="sampling_disabled"?"You declined, so nothing was sent to Claude.":
+      c==="rate_limited"?"Too many requests just now. Try again in a minute.":
+      c==="invalid_json"?"The AI reply could not be read as data. Try again.":
+      c==="prompt_too_large"?"This syllabus is too long to send in one piece.":
+      "The AI pass did not complete."};
+  }
+  S.aiBusy=false;
+  render();
+}
+
+function aiSetupSheet(){
+  document.querySelectorAll(".sheet-wrap").forEach(n=>n.remove());
+  const cfg=AI.get();
+  const el=document.createElement("div"); el.className="sheet-wrap"; el.dataset.closeai="1";
+  el.innerHTML=`<div class="sheet" role="dialog" aria-label="AI settings" style="max-width:520px">
+    <header><div><div class="lbl">Optional</div>
+      <h3 style="margin-top:6px">Turn on the AI pass</h3></div>
+      <button class="x" data-closeai="1" aria-label="Close">×</button></header>
+    <div style="padding:16px;overflow:auto;display:flex;flex-direction:column;gap:14px">
+      <p style="font-size:13.5px;color:var(--ink-2);margin:0">Syllify works without this. Rules extraction,
+        the semester read-out and the calendar file all run with no AI at all.</p>
+      <p style="font-size:13.5px;color:var(--ink-2);margin:0">Adding a key lets a model read what the rules
+        missed, and read schedules that were saved as images. <b style="color:var(--ink)">Your key is stored
+        in this browser only.</b> It is sent to the provider you choose and nowhere else — there is no
+        Syllify server.</p>
+      <div class="fld"><label class="lbl" for="aiProv">Provider</label>
+        <select class="sel" id="aiProv" style="width:100%;height:34px">
+          ${Object.entries(PROVIDERS).map(([k,v])=>`<option value="${k}" ${cfg.provider===k?"selected":""}>${v.label}${v.vision?"":" — no image support"}</option>`).join("")}
+        </select></div>
+      <div class="fld"><label class="lbl" for="aiKey">API key</label>
+        <input id="aiKey" type="password" placeholder="${(PROVIDERS[cfg.provider]||PROVIDERS.anthropic).keyHint}" value="${esc(cfg.key||"")}"></div>
+      <details style="font-size:13px;color:var(--ink-2)">
+        <summary style="cursor:pointer;color:var(--ink)">Or use a Worker URL instead</summary>
+        <p style="margin:8px 0 0">Safer, and works with providers that refuse direct browser calls.
+          Deploy <code>worker.js</code> from the repo and paste its address here.</p>
+        <div class="fld" style="margin-top:8px"><input id="aiEp" placeholder="https://…workers.dev" value="${esc(cfg.endpoint||"")}"></div>
+      </details>
+      <p style="font-size:12.5px;color:var(--ink-3);margin:0">Roughly 550 tokens per syllabus, or about
+        2,000 for a page read as an image. Anyone with access to this browser can read a stored key, so use
+        one with a spending limit.</p>
+    </div>
+    <footer><span>Nothing is sent anywhere until you upload a syllabus.</span>
+      ${cfg.key||cfg.endpoint?`<button class="btn sec sm" id="aiForget">Remove</button>`:""}
+      <button class="btn sm" id="aiSave">Save</button></footer></div>`;
+  document.body.append(el);
+  const k=el.querySelector("#aiKey"); if(k) k.focus();
+}
+
+function aiSheet(){
+  const f=S.files[0]; if(!f) return;
+  const prompt=aiPrompt(f);
+  const el=document.createElement("div"); el.className="sheet-wrap";
+  el.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="AI assist">
+    <header><div><h3 style="font-size:16px">Read this with any AI</h3>
+      <p style="font-size:12.5px;color:var(--ink-2);margin-top:4px">This copy of Syllify cannot call a model itself. Copy the prompt, paste it into ChatGPT or Claude, then paste the JSON it replies with back here. Every row still gets checked against your file before it is added.</p></div>
+      <button class="x" data-xs="1" aria-label="Close">×</button></header>
+    <div style="padding:13px 16px;display:flex;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--line)">
+      <button class="btn sm" id="cpPrompt">Copy the prompt</button>
+    </div>
+    <pre style="max-height:26vh">${esc(prompt.slice(0,2000))}${prompt.length>2000?"\n…":""}</pre>
+    <div style="padding:13px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px">
+      <label class="lbl" for="aiPaste">Paste the JSON reply</label>
+      <textarea class="paste" id="aiPaste" style="min-height:120px" placeholder='[{"line": 42, "title": "Problem Set 3", ...}]'></textarea>
+      <div><button class="btn sm" id="aiApply">Check it and add</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+  const close=()=>{el.remove();document.removeEventListener("keydown",k)};
+  const k=ev=>{if(ev.key==="Escape")close()};
+  document.addEventListener("keydown",k);
+  el.addEventListener("click",ev=>{if(ev.target===el||ev.target.dataset.xs)close()});
+  const cp=el.querySelector("#cpPrompt");
+  cp.addEventListener("click",async()=>{
+    try{await navigator.clipboard.writeText(prompt);cp.textContent="Copied";}
+    catch(_){cp.textContent="Select the text below";}
+    setTimeout(()=>cp.textContent="Copy the prompt",1600);
+  });
+  el.querySelector("#aiApply").addEventListener("click",()=>{
+    let raw=null;
+    const txt=el.querySelector("#aiPaste").value.trim();
+    try{ raw=JSON.parse(txt.slice(txt.indexOf("["),txt.lastIndexOf("]")+1)); }
+    catch(_){ S.aiNote={error:"That is not valid JSON. Copy the whole reply, including the square brackets."}; close(); render(); return; }
+    const doc=S.docs.find(d=>d.name===f.name)||S.docs[0]||{};
+    const v=aiVerify(raw,f,doc); const m=aiMerge(v.kept);
+    S.aiNote={added:m.added,dupes:m.dupes,rejected:v.rejected};
+    close(); render();
+  });
+}
+
+/* ============================== files ============================== */
+function addSample(k){
+  if(S.files.some(f=>f.sample===k)) return;
+  S.files.push({id:++S.uid,name:k.replace(" ","")+"_syllabus.txt",ext:"TXT",
+    size:Math.round(SAMPLES[k].length/1024)+" KB",text:SAMPLES[k],sample:k});
+}
+function addReal(list){
+  [...list].forEach(f=>{
+    S.files.push({id:++S.uid,name:f.name,ext:(f.name.split(".").pop()||"?").toUpperCase().slice(0,4),
+      size: f.size>1048576?(f.size/1048576).toFixed(1)+" MB":Math.max(1,Math.round(f.size/1024))+" KB",
+      blob:f});
+  });
+}
+
+/* ============================== export files ============================== */
+const pad=n=>String(n).padStart(2,"0");
+function buildICS(){
+  const out=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Syllify//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Syllify — course deadlines"];
+  on().forEach(e=>{
+    const [y,m,d]=e.d.split("-").map(Number); const [h,mi]=e.tm.split(":").map(Number);
+    const end=new Date(y,m-1,d,h,mi+60);
+    out.push("BEGIN:VEVENT","UID:"+e.id+"@syllify","DTSTAMP:20250921T090000Z",
+      "DTSTART:"+y+pad(m)+pad(d)+"T"+pad(h)+pad(mi)+"00",
+      "DTEND:"+end.getFullYear()+pad(end.getMonth()+1)+pad(end.getDate())+"T"+pad(end.getHours())+pad(end.getMinutes())+"00",
+      "SUMMARY:"+e.code+" — "+e.t.replace(/[,;]/g,""),
+      "DESCRIPTION:"+(e.edited?"Confirmed by you":BANDWORD[band(e)])+
+        "\\nSource: "+e.file+" line "+e.ln,
+      "CATEGORIES:"+(e.k==="r"?"READING":e.k==="x"?"EXAM":"ASSIGNMENT"));
+    if(e.rrule) out.push("RRULE:"+e.rrule);
+    if(S.remind!=="0") out.push("BEGIN:VALARM","TRIGGER:-PT"+S.remind+"M","ACTION:DISPLAY","DESCRIPTION:"+e.t.replace(/[,;]/g,""),"END:VALARM");
+    out.push("END:VEVENT");
+  });
+  out.push("END:VCALENDAR"); return out.join("\n");
+}
+function buildCSV(){
+  const q=s=>/[",\n]/.test(s)?'"'+String(s).replace(/"/g,'""')+'"':s;
+  const r=[["course","type","item","due_date","due_time","evidence","confirmed","source_file","source_line"].join(",")];
+  on().forEach(e=>r.push([e.code,e.k==="r"?"Reading":e.k==="x"?"Exam":"Assignment",e.t,e.d,e.tm,
+    (e.edited?1:e.c).toFixed(2),e.edited?"yes":"no",e.file,e.ln].map(q).join(",")));
+  return r.join("\n");
+}
+const TZ=(function(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(_){return "";}})();
+function gcalURL(e){
+  const [y,m,d]=e.d.split("-").map(Number), [h,mi]=e.tm.split(":").map(Number);
+  const en=new Date(y,m-1,d,h,mi+60);
+  const f=(Y,M,D,H,I)=>Y+pad(M)+pad(D)+"T"+pad(H)+pad(I)+"00";
+  const q=new URLSearchParams({
+    action:"TEMPLATE", text:e.code+" — "+e.t,
+    dates:f(y,m,d,h,mi)+"/"+f(en.getFullYear(),en.getMonth()+1,en.getDate(),en.getHours(),en.getMinutes()),
+    details:"From "+e.file+", line "+e.ln+(e.edited?" (confirmed by you)":" · "+BANDWORD[band(e)].toLowerCase())
+  });
+  if(TZ) q.set("ctz",TZ);
+  return "https://calendar.google.com/calendar/render?"+q.toString();
+}
+/* Minimal stored (uncompressed) zip writer — the viewer allows .zip but not .ics. */
+const CRCT=(function(){const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zipOne(name,text){
+  const enc=new TextEncoder(), data=enc.encode(text), nm=enc.encode(name), crc=crc32(data), n=data.length;
+  const loc=new Uint8Array(30+nm.length), lv=new DataView(loc.buffer);
+  lv.setUint32(0,0x04034b50,true); lv.setUint16(4,20,true);
+  lv.setUint32(14,crc,true); lv.setUint32(18,n,true); lv.setUint32(22,n,true);
+  lv.setUint16(26,nm.length,true); loc.set(nm,30);
+  const cen=new Uint8Array(46+nm.length), cv=new DataView(cen.buffer);
+  cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true);
+  cv.setUint32(16,crc,true); cv.setUint32(20,n,true); cv.setUint32(24,n,true);
+  cv.setUint16(28,nm.length,true); cv.setUint32(42,0,true); cen.set(nm,46);
+  const end=new Uint8Array(22), ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true); ev.setUint16(8,1,true); ev.setUint16(10,1,true);
+  ev.setUint32(12,cen.length,true); ev.setUint32(16,loc.length+n,true);
+  return new Blob([loc,data,cen,end],{type:"application/zip"});
+}
+let DL=null, DLready=false;
+try{ (window.claude&&window.claude.use ? window.claude.use("downloads") : Promise.resolve(null))
+  .then(function(d){DL=d;DLready=true;},function(){DLready=true;}); }catch(_){ DLready=true; }
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(n=>n.remove());
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),4200);
+}
+function saveFile(text,fname,mime){
+  try{
+    const url=URL.createObjectURL(new Blob([text],{type:mime}));
+    const a=document.createElement("a");
+    a.href=url; a.download=fname; a.rel="noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},2000);
+    return true;
+  }catch(_){ return false; }
+}
+async function addToCalendar(){
+  const text=buildICS();
+  const stem="syllify-"+(S.docs[0]?S.docs[0].code.replace(/\s/g,""):"deadlines");
+  let dl=DL;
+  if(!DLready&&window.claude&&window.claude.use){ try{ dl=await window.claude.use("downloads"); }catch(_){ dl=null; } }
+  if(dl){
+    try{
+      await dl.save({filename:stem+".zip", data:zipOne(stem+".ics",text)});
+      toast("Saved. Unzip it and open the .ics — your calendar app imports all "+on().length+" at once.");
+      return;
+    }catch(err){
+      if(err&&err.code==="declined") return;
+      if(err&&err.code==="rate_limited"){ toast("A save prompt is already open."); return; }
+    }
+  }
+  if(!saveFile(text,stem+".ics","text/calendar;charset=utf-8")) icsSheet(text,stem+".ics");
+  else toast("Calendar file saved. Open it and your calendar imports all "+on().length+" at once.");
+}
+
+function icsSheet(text,fname){
+  const el=document.createElement("div"); el.className="sheet-wrap";
+  el.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="Calendar file">
+    <header><div><h3 style="font-size:16px">${on().length} deadlines</h3>
+      <p style="font-size:12.5px;color:var(--ink-2);margin-top:4px">Copy the text below into a file called <b>${esc(fname)}</b>, then open it — your calendar imports everything at once.</p></div>
+      <button class="x" data-xs="1" aria-label="Close">×</button></header>
+    <div style="padding:13px 16px;display:flex;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--line)">
+      <button class="btn sm" id="cp">Copy file text</button>
+      <a class="btn sec sm" target="_blank" rel="noopener"
+         href="https://calendar.google.com/calendar/u/0/r/settings/export">Open Google import</a>
+    </div>
+    <pre>${esc(text)}</pre>
+  </div>`;
+  document.body.appendChild(el);
+  const close=()=>{el.remove();document.removeEventListener("keydown",k)};
+  const k=ev=>{if(ev.key==="Escape")close()};
+  document.addEventListener("keydown",k);
+  el.addEventListener("click",ev=>{if(ev.target===el||ev.target.dataset.xs)close()});
+  const cp=el.querySelector("#cp");
+  cp.addEventListener("click",async()=>{
+    try{await navigator.clipboard.writeText(text);cp.textContent="Copied";}
+    catch(_){cp.textContent="Select text below";}
+    setTimeout(()=>cp.textContent="Copy file text",1600);
+  });
+  cp.focus();
+}
+
+async function saveCSV(){
+  const text=buildCSV();
+  let dl=DL; if(!DLready&&window.claude&&window.claude.use){ try{ dl=await window.claude.use("downloads"); }catch(_){ dl=null; } }
+  if(dl){
+    try{ await dl.save({filename:"syllify-deadlines.csv", data:text}); toast("CSV saved."); return; }
+    catch(err){ if(err&&err.code==="declined") return; }
+  }
+  if(!saveFile(text,"syllify-deadlines.csv","text/csv;charset=utf-8")) icsSheet(text,"syllify-deadlines.csv");
+}
+
+/* ============================== events ============================== */
+document.addEventListener("click",ev=>{
+  const t=ev.target;
+  if(t.closest("#home")){ S.view=(S.items.length||S.gaps.length)?"result":"landing"; S.sel=null; render(); return; }
+  const go=t.closest("[data-go]");
+  if(go){ S.view=go.dataset.go; S.sel=null; if(S.view==="upload") S.pasting=false; render(); return; }
+  const sm=t.closest("[data-sample]");
+  if(sm){ addSample(sm.dataset.sample); S.view="parsing"; render(); return; }
+  const pa=t.closest("[data-paste]");
+  if(pa){ S.pasting=pa.dataset.paste==="1"; render(); return; }
+  if(t.closest("#pasteAdd")){
+    const v=document.getElementById("pasteBox").value.trim();
+    if(v.length>60){ S.files.push({id:++S.uid,name:"pasted-syllabus.txt",ext:"TXT",
+      size:Math.round(v.length/1024)+" KB",text:v}); S.pasting=false; S.view="parsing"; render(); }
+    else toast(v.length?"That is only "+v.length+" characters — paste the schedule rows, dates and all.":"Nothing pasted yet.");
+    return;
+  }
+  if(t.closest("#chooseBtn")){ document.getElementById("fileInput").click(); return; }
+  const rm=t.closest("[data-rm]");
+  if(rm){ S.files=S.files.filter(f=>f.id!==+rm.dataset.rm); render(); return; }
+  if(t.closest("#runBtn")){ S.view="parsing"; render(); return; }
+
+  const jp=t.closest("[data-jump]"); if(jp){ jump(jp.dataset.jump); return; }
+  const ln=t.closest("[data-lens]");
+  if(ln){ S.lens=ln.dataset.lens; S.sel=null; S.addingLine=null; render(); jump("schedule"); return; }
+  const fl=t.closest("[data-filter]"); if(fl){ S.filter=fl.dataset.filter; render(); return; }
+  if(t.closest("#srcAll")){ S.showSource=!S.showSource; render(); return; }
+  const tg=t.closest("[data-tog]");
+  if(tg){ ev.stopPropagation(); const e=S.items.find(x=>x.id===tg.dataset.tog);
+    if(e){ e.on=!e.on; render(); } return; }
+  const row=t.closest("[data-row]");
+  if(row){ S.sel = S.sel===row.dataset.row ? null : row.dataset.row; render(); return; }
+  if(t.closest("[data-close]")){ S.sel=null; render(); return; }
+  const sv=t.closest("[data-save]");
+  if(sv){
+    const e=S.items.find(x=>x.id===sv.dataset.save);
+    const nt=document.getElementById("e-t").value.trim();
+    e.t=nt||e.t; e.d=document.getElementById("e-d").value||e.d;
+    e.tm=document.getElementById("e-m").value||e.tm; e.edited=true;
+    S.items.sort((a,b)=>a.d.localeCompare(b.d)); S.sel=null; render(); return;
+  }
+  const gd=t.closest("[data-gdrop]");
+  if(gd){ S.gaps=S.gaps.filter(x=>x.id!==gd.dataset.gdrop); render(); return; }
+  if(t.closest("#aiBtn")){ runAI(); return; }
+  if(t.closest("#aiSetup")){ aiSetupSheet(); return; }
+  /* Actions inside the panel must be handled before the dismiss check, or the
+     wrapper's own data-closeai swallows every click in the sheet. */
+  if(t.closest("#aiForget")){ AI.clear(); document.querySelectorAll(".sheet-wrap").forEach(n=>n.remove()); render(); toast("Key removed from this browser."); return; }
+  if(t.closest("#aiSave")){
+    const prov=document.getElementById("aiProv").value;
+    const key=document.getElementById("aiKey").value.trim();
+    const ep=(document.getElementById("aiEp")||{}).value||"";
+    if(!key && !ep.trim()){ toast("Enter a key, or a Worker URL."); return; }
+    AI.set({provider:prov, key, endpoint:ep.trim()});
+    document.querySelectorAll(".sheet-wrap").forEach(n=>n.remove());
+    render(); toast("AI is on. It runs automatically on your next upload.");
+    return;
+  }
+  if(t.closest("[data-closeai]") && (t.closest(".x") || !t.closest(".sheet"))){
+    document.querySelectorAll(".sheet-wrap").forEach(n=>n.remove()); return;
+  }
+  if(t.closest("#verdictAI")){ runVerdictAI(); return; }
+  const sf=t.closest("[data-src]");
+  if(sf){ S.srcFile=+sf.dataset.src; S.addingLine=null; render(); return; }
+  if(t.closest("[data-cancelline]")){ S.addingLine=null; render(); return; }
+  const sl=t.closest("[data-saveline]");
+  if(sl){
+    const ln=+sl.dataset.saveline;
+    const ti=document.getElementById("slTitle"), da=document.getElementById("slDate");
+    const m=sourceModel();
+    if(ti && ti.value.trim() && da && da.value){
+      S.items.push({id:"man-"+m.f.id+"-"+ln, code:(S.docs[0]||{}).code||"Course", k:"a",
+        t:ti.value.trim().slice(0,92), d:da.value, tm:"23:59", c:1, edited:true,
+        why:[["+","You added this from line "+ln+" of your syllabus"]],
+        line:m.rows[ln-1]?m.rows[ln-1].l:"", ln, matched:"", on:true, file:m.f.name});
+      S.items.sort((a,b)=>a.d.localeCompare(b.d));
+    }
+    S.addingLine=null; render(); return;
+  }
+  const srow=t.closest(".srow.susp");
+  if(srow){ S.addingLine=+srow.dataset.line;
+    const y=window.scrollY; render(); window.scrollTo({top:y,behavior:"instant"});
+    setTimeout(()=>{const el=document.getElementById("slDate"); if(el) el.focus();},60);
+    return; }
+  if(t.closest("[data-add]")){ addToCalendar(); return; }
+  if(t.closest("[data-showall]")){ S.showAll=true; render(); return; }
+  if(t.closest("#flipOrder")){
+    const cur=S.docs.find(d=>d.hasNumericDates);
+    S.dateOrder = cur && cur.dayFirst ? "mdy" : "dmy";
+    reparse(); render(); return;
+  }
+  if(t.closest('[data-out="csv"]')){ saveCSV(); return; }
+});
+
+document.addEventListener("change",ev=>{
+  if(ev.target.id==="fileInput"){ const had=S.files.length; addReal(ev.target.files);
+    if(S.files.length>had){ S.view="parsing"; } render(); }
+  const gdt=ev.target.closest&&ev.target.closest("[data-gapdate]");
+  if(gdt&&gdt.value){ addGap(gdt.dataset.gapdate, gdt.value); return; }
+  if(ev.target.id==="remind"){ S.remind=ev.target.value; }
+  if(ev.target.id==="termStart"){ S.termStart=ev.target.value; reparse(); render(); }
+});
+
+["dragenter","dragover"].forEach(n=>document.addEventListener(n,ev=>{
+  ev.preventDefault();
+  const d=document.getElementById("drop"); if(d) d.classList.add("hot");
+  document.body.classList.add("dragging");
+}));
+document.addEventListener("dragleave",ev=>{
+  if(ev.relatedTarget) return;
+  const d=document.getElementById("drop"); if(d) d.classList.remove("hot");
+  document.body.classList.remove("dragging");
+});
+document.addEventListener("drop",ev=>{
+  ev.preventDefault();
+  const d=document.getElementById("drop"); if(d) d.classList.remove("hot");
+  document.body.classList.remove("dragging");
+  if(ev.dataTransfer&&ev.dataTransfer.files.length){
+    const had=S.files.length;
+    addReal(ev.dataTransfer.files);
+    if(S.files.length>had) S.view="parsing";
+  }
+  render();
+});
+document.addEventListener("keydown",ev=>{
+  if(ev.key==="Escape"&&S.sel){ S.sel=null; render(); return; }
+  const cb=ev.target.closest&&ev.target.closest("[data-tog]");
+  if(cb&&(ev.key===" "||ev.key==="Enter")){
+    ev.preventDefault(); ev.stopPropagation();
+    const e=S.items.find(x=>x.id===cb.dataset.tog);
+    if(e){ e.on=!e.on; render(); const again=document.querySelector(`[data-tog="${CSS.escape(e.id)}"]`); if(again) again.focus(); }
+  }
+});
+
+render();
+})();
+</script>
+
+</body>
+</html>
