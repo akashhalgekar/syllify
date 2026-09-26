@@ -1,0 +1,8 @@
+DATA 301 Applied Machine Learning
+Spring 2026
+Instructor: Dr. Noor Haddad
+2026-01-20 | Linear models | Homework 1 due
+2026-02-03 | Trees | Homework 2 due
+2026-02-24 | Midterm exam, in class
+2026-03-17 | Neural nets | Project proposal due
+2026-04-28 | Final project report due

@@ -1,0 +1,7 @@
+MGMT 220 Operations
+Trimester 1 2025
+Instructor: Dr A. Silva
+03/04/2025 | Forecasting | Assignment 1 due
+17/04/2025 | Inventory | Assignment 2 due
+08/05/2025 | Midterm test
+26/06/2025 | Final report due

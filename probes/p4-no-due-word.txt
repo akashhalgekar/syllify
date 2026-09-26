@@ -1,0 +1,7 @@
+ARCH 340 Structures II
+Fall 2025
+Date | Topic | Deliverable
+Sep 11 | Loads | Problem Set 1
+Sep 25 | Beams | Problem Set 2
+Oct 16 | Columns | Midterm Exam
+Nov 20 | Trusses | Design Project

@@ -1,0 +1,8 @@
+INF 2200 Verteilte Systeme
+Technische Universitaet | Wintersemester 2025
+Dozent: Prof. Dr. M. Keller
+Termin | Thema | Abgabe
+15.10.2025 | Einfuehrung | Uebungsblatt 1 due
+22.10.2025 | Prozesse | Uebungsblatt 2 due
+05.11.2025 | Klausur / Midterm exam
+17.12.2025 | Projektbericht due

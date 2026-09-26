@@ -1,0 +1,6 @@
+NURS 210	Pathophysiology	Fall 2025
+Week	Date	Topic	Assessment
+1	Aug 26	Cell injury	Quiz 1 due Aug 29
+2	Sep 2	Inflammation	Quiz 2 due Sep 5
+6	Sep 30	Cardiac	Midterm Exam Oct 3
+12	Nov 11	Renal	Care plan due Nov 14
